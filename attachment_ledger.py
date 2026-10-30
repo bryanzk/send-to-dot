@@ -50,6 +50,7 @@ class Ledger:
             if item and item['state'] in ('creating','posting','creating_uncertain','posting_uncertain'):
                 return {'decision':'hold','reason':item['state'],'action':'resolve_native_outcome_before_retry'}
             if item and item.get('lease_until',0)>self.clock():return {'decision':'hold','reason':'worker_active'}
+            if item and item.get('delivery_mode')=='image_then_answer':return {'decision':'hold','reason':'split_delivery_requires_split_planner'}
             source=self.source(file_id,event_id)
             if 'decision' in source:return source
             if item is None:item={'source_file_id':file_id};data['items'].append(item)

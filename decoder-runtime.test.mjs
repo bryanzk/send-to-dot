@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {verifyDecoderRuntime} from './decoder_runtime.mjs';
+test('background decoder refuses implicit PATH resolution and missing configuration',()=>{for(const p of [undefined,'python3',''])assert.throws(()=>verifyDecoderRuntime(p),/absolute/);});
+test('wrong decoder version, crash and timeout fail before service startup',()=>{for(const r of [{status:0,stdout:Buffer.from('9.3.0')},{status:1,stdout:Buffer.from('')},{status:null,error:Error('timeout')}])assert.throws(()=>verifyDecoderRuntime('/fixture/python',{run:()=>r}),/Pillow12/);});
+test('verified exact decoder succeeds without returning unrelated output',()=>{const called=[];assert.deepEqual(verifyDecoderRuntime('/fixture/python',{run:(...args)=>{called.push(args);return {status:0,stdout:Buffer.from('12.0.0\n')};}}),{python:'/fixture/python',version:'12.0.0'});assert.equal(called[0][2].timeout,10000);});

@@ -21,7 +21,7 @@ for(const action of ['discard','disconnect'])for(const phase of ['upload','json'
  await vm.runInNewContext(source,context);const startup=get('retry').onclick();await reached.promise;
  await get(action).onclick();const cancelledText=get('status').textContent;
  if(signal)assert.equal(signal.aborted,true);assert.equal(stored.size,0);assert.equal(get('preview').hidden,true);assert.equal(get('retry').disabled,false);
- if(action==='disconnect'){assert.equal(token,'');assert.equal(get('pair').hidden,false);assert.match(cancelledText,/配对和暂存已清除/);}else assert.match(cancelledText,/暂存已删除/);
+ if(action==='disconnect'){assert.equal(token,'');assert.equal(get('pair').hidden,false);assert.match(cancelledText,/这台手机已断开/);}else assert.match(cancelledText,/这里选中的图片和文字已清除/);
  resume.resolve();await startup;
  assert.equal(stored.size,0,'late response/persist cannot resurrect original image');
  assert.equal(get('status').textContent,cancelledText,'late completion cannot overwrite cancellation status');

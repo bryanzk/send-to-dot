@@ -15,3 +15,15 @@ export function imageDelivery(image,token,cache,{inlineLimit=4*1024*1024,preview
   original_bytes:image.bytes.length,original_mime:image.mime,expires_at:image.source.expires_at,read_receipt_max_ttl_ms:300000,read_receipt:receipt};
  return [{type:'image',data:viewed.toString('base64'),mimeType:'image/jpeg'},{type:'text',text:JSON.stringify(descriptor)}];
 }
+
+// Same existing read permission; exact bytes stay in owner-only, grant-bound cache.
+// This is for an authorized agent's native attachment adapter, not a public URL.
+export function attachmentSource(image,token,cache){
+ const originalHash=sha(image.bytes);
+ if(!cache||!image.source||originalHash!==image.submission.image_sha256)throw Error('Original image delivery unavailable');
+ const receipt=cache.stage(image.bytes,{...image.source,grant_hash:sha(Buffer.from(token))});
+ return {type:'send-to-dot.attachment-source',version:1,file_id:image.source.file_id,eventId:image.source.event_id,
+  original_sha256:originalHash,original_bytes:image.bytes.length,original_mime:image.mime,
+  expires_at:image.source.expires_at,read_receipt_max_ttl_ms:300000,read_receipt:receipt,
+  submission:image.submission.caption?image.submission:null};
+}

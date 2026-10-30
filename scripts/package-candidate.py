@@ -1,6 +1,6 @@
 """Build a deterministic source-only candidate, never a runtime backup."""
 from pathlib import Path
-import gzip, hashlib, io, tarfile
+import gzip, hashlib, io, tarfile, json
 
 root = Path(__file__).resolve().parents[1]
 allowed = {
@@ -30,7 +30,8 @@ for path in sorted(root.rglob('*')):
 checksums = ''.join(hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + str(p.relative_to(root)) + '\n' for p in paths)
 (root / 'SOURCE_SHA256.txt').write_text(checksums)
 paths.append(root / 'SOURCE_SHA256.txt')
-output = root.parent / 'send-to-dot-0.1.0-source-candidate.tar.gz'
+version = json.loads((root / 'package.json').read_text())['version']
+output = root.parent / f'send-to-dot-{version}-source-candidate.tar.gz'
 with output.open('wb') as raw, gzip.GzipFile(filename='', fileobj=raw, mode='wb', mtime=0) as compressed, tarfile.open(fileobj=compressed, mode='w') as archive:
     for path in sorted(paths):
         data = path.read_bytes()

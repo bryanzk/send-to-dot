@@ -24,7 +24,7 @@
 
 ## iPhone 使用者
 
-v4公开模板的地址和码都为空。用户首次配置自己的HTTPS root和upload-only码，保存到私人快捷指令Text动作；每次发送复用，不再询问码。这个存储是可见明文，可能iCloud同步或随导出/分享泄露；不是Keychain，必须在真实配置前说明并取得确认，不得分享配置后的副本。v2/v3仍兼容，但继续运行时输入码。换域名、码轮换或授权删除后，必须重新核对地址及上传码。更新模板不会迁移旧码或延长服务器期限。
+v5中文公开模板（v4仍兼容）的地址和码都为空。用户首次配置自己的HTTPS root和upload-only码，保存到私人快捷指令Text动作；每次发送复用，不再询问码。这个存储是可见明文，可能iCloud同步或随导出/分享泄露；不是Keychain，必须在真实配置前说明并取得确认，不得分享配置后的副本。v2/v3仍兼容，但继续运行时输入码。换域名、码轮换或授权删除后，必须重新核对地址及上传码。更新模板不会迁移旧码或延长服务器期限。
 
 ## 有效期与保留
 
@@ -46,3 +46,7 @@ v4公开模板的地址和码都为空。用户首次配置自己的HTTPS root�
 - 图片和问题：仍保留一小时，Space附件另行删除。
 - 手机码：`python3 scripts/phone_access.py revoke` 撤销当前共用upload码；`rotate --days 30`会新建30天码并使旧码失效，实际执行前必须确认；所有使用该码的设备均受影响。`renew --days 30`只延长仍存在的同一码，保存位置不变。
 - ChatGPT访问：`python3 scripts/read_access.py status`只看非秘密期限；`revoke --approve-revoke`撤销本owner的读取/订阅与待交换审批码，保留上传及图片。断开应用不等于服务器已执行撤销；用此本机命令核实。重新连接签发新30天授权必须经本人确认。
+
+## Background image decoder
+
+Setup records an absolute `pythonExecutable` with pinned Pillow12.0.0. Startup now checks that exact runtime before reading credentials or opening the service. Do not rely on a login shell PATH: an older managed trial used Pillow9.3 and rejected a valid Android Ultra HDR JPEG as a multi-image MPO. Update the selected runtime and run preflight; do not disable image validation or convert the user original to hide the mismatch. No existing access lifetime is changed by this correction.

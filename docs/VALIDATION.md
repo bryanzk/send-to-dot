@@ -1,3 +1,15 @@
+# 0.2.0 local release candidate — current evidence
+
+This section supersedes pending statements in historical sections below. Final candidate and fresh extracted-package regression each passed 110 Node +119 Python checks (229 total); see [release candidate evidence](RELEASE_CANDIDATE.md).
+
+- Real Android and iPhone image/question, original-dot event, image read and native assistant-attachment flow succeeded in one user environment. The Chinese v5 share target was observed in one actual iPhone recording. Repeated no-prompt real-device reuse and full30-day operation are not yet proven.
+- An original Android Ultra HDR JPEG privately reproduced400 with Pillow9.3 and201 with Pillow12, exact original bytes retained. The public package adds fail-closed startup runtime verification; no private original is bundled. A later successful upload had different bytes and cannot be called that exact ZIP fixture.
+- Image and answer have separate durable acceptance states. Acceptance does not prove user-visible rendering.
+- The30-second visible-image goal FAILED a real recording; do not claim a latency guarantee.
+- Another qualified dot user independently installing from this package remains unverified. Native iOS Swift source is a prototype, not a signed installed app.
+
+## Historical evidence (context only)
+
 # 30-day/v4 update verification — 2026-10-30
 
 Final regression: **95 Node +84 Python =179 checks passed**, exit0. Actual loopback smoke verified30day fixture upload expiry and OAuth expires_in, SDK subscription, generated upload dedup and exact original read. No real platform token used.

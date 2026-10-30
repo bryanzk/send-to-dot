@@ -1,3 +1,4 @@
+import {verifyDecoderRuntime} from './decoder_runtime.mjs';
 import {ACCESS_MS} from './access_policy.mjs';
 // Start only after approval of exact HTTPS ingress, private connection and secret scopes.
 import http from 'node:http';import {readFileSync,lstatSync} from 'node:fs';
@@ -7,6 +8,8 @@ import {nodeHandler} from './http_bridge.mjs';
 import {observeUpload} from './upload_audit.mjs';
 
 const config=JSON.parse(readFileSync(process.argv[2],'utf8'));
+const decoder=verifyDecoderRuntime(config.pythonExecutable??process.env.DOT_INBOX_PYTHON);
+process.env.DOT_INBOX_PYTHON=decoder.python;
 const project=fileURLToPath(new URL('.',import.meta.url));
 if(!resolve(config.database).startsWith(resolve(project,'state')+sep))throw Error('Database must stay inside this project state directory');
 function secret(path){if(!resolve(path).startsWith(resolve(project,'.secrets')+sep))throw Error('Use only this private project secret directory');const s=lstatSync(path);if(!s.isFile()||s.isSymbolicLink()||s.uid!==process.getuid()||(s.mode&0o077))throw Error('Secrets must be owner-only regular files');return readFileSync(path,'utf8').trim();}

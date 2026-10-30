@@ -7,49 +7,49 @@ struct SendToDotApp: App {
 struct PairingView: View {
     @State private var origin = ""
     @State private var token = ""
-    @State private var status = "Pair with an upload-only code. The server and computer must remain online."
+    @State private var status = "Enter the phone connection code from your setup instructions. Keep the receiving computer on and connected to the internet."
     @State private var busy = false
     @State private var saved: PendingImage?
     @State private var confirmRetry = false
     var body: some View {
         NavigationStack {
             Form {
-                Section("Device pairing") {
-                    TextField("https://your-approved-origin", text: $origin).textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
-                    SecureField("Upload-only pairing code", text: $token).textInputAutocapitalization(.never).autocorrectionDisabled()
+                Section("Connect this phone") {
+                    TextField("Picture-receiving address", text: $origin).textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                    SecureField("Phone connection code", text: $token).textInputAutocapitalization(.never).autocorrectionDisabled()
                     Button("Save on this device") {
-                        do { try InboxStorage.pair(origin: origin, token: token); token = ""; status = "Paired. Share one PNG/JPEG using Send to dot."; refreshSaved() }
-                        catch { status = error.localizedDescription }
+                        do { try InboxStorage.pair(origin: origin, token: token); token = ""; status = "This phone is connected. Choose one JPG or PNG photo and share it to Send to dot."; refreshSaved() }
+                        catch { status = inboxUserMessage(error) }
                     }.disabled(busy)
                 }
-                Section("Saved upload") {
-                    if let saved = saved { Text("Saved destination: " + saved.origin.absoluteString).font(.footnote) }
-                    Button("Review and retry saved image") { refreshSaved(); confirmRetry = saved != nil }.disabled(busy)
-                        .confirmationDialog("Send the saved original image to this destination?", isPresented: $confirmRetry, titleVisibility: .visible) {
+                Section("Photo saved on this phone") {
+                    if let saved = saved { Text("Send to: " + saved.origin.absoluteString).font(.footnote) }
+                    Button("Send the saved photo again") { refreshSaved(); confirmRetry = saved != nil }.disabled(busy)
+                        .confirmationDialog("Send this saved photo here?", isPresented: $confirmRetry, titleVisibility: .visible) {
                             if let saved = saved { Button("Send to " + saved.origin.absoluteString) { retry(confirmed: saved) } }
                             Button("Cancel", role: .cancel) { }
                         } message: {
-                            Text(saved.map { "Destination: " + $0.origin.absoluteString + ". Includes original image metadata. Reuses the existing submission ID; a previous timed-out request may already have arrived." } ?? "No pending image.")
+                            Text(saved.map { "Send to: " + $0.origin.absoluteString + ". The original photo may include when and where it was taken. If a previous send stopped, the photo may already have arrived. Check your original dot conversation first." } ?? "There is no photo waiting on this phone.")
                         }
-                    Button("Discard saved image", role: .destructive) {
-                        do { try InboxStorage.discard(); status = "Device copy discarded. A prior server receipt may still exist until its retention expires."; refreshSaved() }
-                        catch { status = error.localizedDescription }
+                    Button("Delete the copy saved here (keep the Photos original)", role: .destructive) {
+                        do { try InboxStorage.discard(); status = "The copy saved here is deleted. Your original in Photos is not deleted. Already submitted photos are unchanged; the receiving address removes its copy after one hour."; refreshSaved() }
+                        catch { status = inboxUserMessage(error) }
                     }.disabled(busy)
                 }
                 Section {
                     Text(status)
-                    Text("Keychain stores the upload code together with its exact destination on this device. Original image bytes, including metadata, go to your configured server and authorized ChatGPT. This is a foreground prototype.").font(.footnote)
-                    Button("Disconnect this device", role: .destructive) {
-                        do { try InboxStorage.disconnect(); status = "Local pairing and pending image removed. Server revocation is separate."; refreshSaved() }
-                        catch { status = error.localizedDescription }
+                    Text("This app keeps your phone connection code in the iPhone’s protected password storage. Your original photo, including details such as when and where it was taken, goes to your receiving address and the ChatGPT you allowed. Keep this app open while sending. This app is still being tested.").font(.footnote)
+                    Button("Disconnect and delete the copy saved here", role: .destructive) {
+                        do { try InboxStorage.disconnect(); status = "This phone is disconnected and the copy saved here is deleted. Your original in Photos is not deleted. To stop the code on other devices too, ask the person who helped you set this up."; refreshSaved() }
+                        catch { status = inboxUserMessage(error) }
                     }.disabled(busy)
                 }
             }.navigationTitle("Send to dot").task { refreshSaved() }
         }
     }
-    private func refreshSaved() { do { saved = try InboxStorage.pending() } catch { saved = nil; status = error.localizedDescription } }
+    private func refreshSaved() { do { saved = try InboxStorage.pending() } catch { saved = nil; status = inboxUserMessage(error) } }
     private func retry(confirmed: PendingImage) {
         busy = true
-        Task { do { status = try await InboxUpload.sendPending(confirmed: confirmed) } catch { status = "\(error.localizedDescription) If delivery timed out, its outcome is unknown; retry keeps the same submission ID." }; busy = false; refreshSaved() }
+        Task { do { status = try await InboxUpload.sendPending(confirmed: confirmed) } catch { status = "\(inboxUserMessage(error)) We cannot be sure whether the photo arrived. Check your original dot conversation before sending the saved photo again." }; busy = false; refreshSaved() }
     }
 }

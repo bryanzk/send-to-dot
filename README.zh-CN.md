@@ -74,27 +74,27 @@ owner 授权码只用于你自己的授权页。不得把它发送到聊天或�
 1. 用 Chrome 打开你的收件地址。
 2. 在浏览器菜单安装 Send to dot。菜单名称因版本而异，通常是「安装应用」或「添加到主屏幕」。
 3. 按[配对说明](docs/QUICKSTART.md#6-手机安装与配对)，在 Mac 取得手机专用上传码。
-4. 将上传码填入手机页面的「手机配对码」。
+4. 将上传码填入手机页面的「手机连接码」。
 5. 点「连接这台手机」。
 
 **连接框收起，表示手机记住了码。** 在同一地址重开页面时，网站数据必须保留。上传码是否有效，由第 5 步确认。
 
 #### iPhone
 
-1. 打开本包的 `shortcuts/Send-to-dot-v4.shortcut`。
+1. 打开本包的 `shortcuts/Send-to-dot-v5-zh-CN.shortcut`。
 2. 在「快捷指令」中添加它。
 3. 配置地址 `https://inbox.example.com`。此处不加 `/mcp` 或 `/api/upload`。
 4. 阅读保存说明；同意后，在第二个设置问题中本人填写手机专用上传码。
 
-**在快捷指令列表找到 Send-to-dot-v4，才继续。** 相册分享时按[iPhone 指南](docs/IOS_V4_SETUP.md)运行它。
+**在快捷指令列表找到 Send to dot v5 中文，才继续。** 相册分享时按[iPhone 指南](docs/IOS_V5_COPY.md)运行它。
 
-v4 首次配置地址和手机专用上传码，以后发送复用。码保存在私人快捷指令的可见文本中，可能随 iCloud 同步或导出。保存前必须了解并确认这个范围。不得分享填好码的副本，不得填写 owner 授权码或 OpenAI 密钥。
+v5 首次配置地址和手机专用上传码，以后发送复用。码保存在私人快捷指令的可见文本中，可能随 iCloud 同步或导出。保存前必须了解并确认这个范围。不得分享填好码的副本，不得填写 owner 授权码或 OpenAI 密钥。
 
 ### 5. 用一张不私密的图片验证
 
 1. 从你的地址下载 `/sample.png`。例如 `https://inbox.example.com/sample.png`。
 2. 在相册选择这张样本，打开系统分享。
-3. Android 选择 Send to dot；iPhone 选择 Send-to-dot-v4。
+3. Android 选择 Send to dot；iPhone 选择 Send to dot v5 中文。
 4. 可以填写一句针对图片的问题，再发送。
 5. 回到第 3 步的原 dot 对话。
 
@@ -114,9 +114,11 @@ v4 首次配置地址和手机专用上传码，以后发送复用。码保存�
 
 Android 成功发送后会清空当前图片。页面没有再编辑或重试按钮。网络出错时，先检查原 dot。刷新或重开不会自动重发。
 
+**图片和回答会分两条出现：** 先发原图，随后回答问题。一次实测未达到 30 秒内显示图片的目标，目前不能保证这个速度。等待时不要连续重发。
+
 ## 能否只配置一次？
 
-**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone v4 保存地址和上传码，不再逐次询问码。
+**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone v5 保存地址和上传码，不再逐次询问码。
 
 新签发的上传和 ChatGPT 访问授权默认 30 天。旧连接仍按原期限到期；更新代码不会自动延长它们。到期必须正常续期或重新授权。重启电脑或重填旧码不会延长授权。
 
@@ -136,10 +138,10 @@ Mac 关机、睡眠或断网时不能收件。临时网址会失效，不适合�
 
 一个真实用户环境完成了 Android 和 iPhone 图文分享、原 dot 读图及助手附件发送。新版 Android 页面完成了窄屏浏览器检查。
 
-另一位已有 dot 的用户独立部署并完成全程，尚未验证。各设备的表现和长期运行也必须继续验证。
+中文版 v5 已有一次真实 iPhone 录屏发送；完整 30 天连续运行和真机多次发送免配置仍未验完。另一位已有 dot 的用户独立部署并完成全程，尚未验证。各设备的表现和长期运行也必须继续验证。
 
 ## 深入说明
 
-[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_V4_SETUP.md)
+[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_V5_COPY.md)
 
 [技术原理](docs/ARCHITECTURE.md) · [隐私与安全](docs/THREAT_MODEL.md) · [开发验证](docs/VALIDATION.md) · [依赖许可](docs/DEPENDENCIES.md) · [发布检查表](docs/RELEASE_CHECKLIST.md)

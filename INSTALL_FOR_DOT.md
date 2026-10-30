@@ -102,3 +102,9 @@ Large images may return a viewing preview plus a short-lived read receipt. The a
 ## Evidence levels
 
 Use separate labels for actual local code/HTTP checks, simulated platform callbacks, actual platform connection, real phone sharing and user-visible attachment acceptance. `plan`, `preflight` and `smoke` cannot replace the later stages. The project has single-user trial evidence; independent target-user installation remains a release limitation.
+
+## Current release acceptance boundaries
+
+Use the signed blank Chinese v5 Shortcut for that language; v4 remains compatible. Enter the user's own address/upload-only code during import, never an author credential. Preserve the visible-text/iCloud/export warning. Verify the background service uses the setup-selected absolute Pillow12 interpreter, not merely the interactive shell.
+
+Configure image-first, question-after delivery only where actual native Library and assistant attachment tools exist. The local helper does not expose a server API for sending ChatGPT messages. Do not add delivery-state write tools under a read-only label. No generic task-message tool is an assistant attachment API. The 30-second original-visible goal has failed a real acceptance run; do not advertise it as achieved or ask for blind repeated tests. A second independent user's complete installation still needs validation.

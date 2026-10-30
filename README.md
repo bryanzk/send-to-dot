@@ -2,7 +2,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**Share a photo from your phone and continue your existing dot conversation.** Add an optional question; dot responds in context and posts the original image as an assistant attachment.
+**Share a photo from your phone and continue your existing dot conversation.** Add an optional question; dot posts the original image as an assistant attachment, then answers your question separately in context.
 
 I built this because sharing a photo to ChatGPT kept opening a new chat. Finding the original conversation and uploading the photo again interrupted what I was doing. Send to dot receives only photos you choose to share. It does not scan your gallery or impersonate your messages.
 
@@ -30,18 +30,20 @@ You pay for your own infrastructure and account usage. The core service does not
 1. Have dot follow the [installation guide](INSTALL_FOR_DOT.md), or prepare the service with the [manual guide](docs/QUICKSTART.md). Open your HTTPS address on your phone. **Continue only when the “Send to dot” page opens.**
 2. Connect your own ChatGPT custom app to `https://YOUR-ADDRESS/mcp` using OAuth. Complete the owner approval yourself. **Continue only when ChatGPT shows the app is connected.** Keep the owner code out of chat.
 3. In your existing dot conversation, ask it to connect the inbox, respond there and send each original as an assistant attachment. The [attachment guide](docs/ATTACHMENT_AUTOMATION.md) explains the required native tools. **A confirmed subscription and attachment setup are required; the request alone does not configure them.**
-4. Install and pair the Android web app, or add the [iPhone Shortcut](docs/IOS_V4_SETUP.md). Use a phone upload code, never the owner code. V4 configures the address and upload-only code once, then reuses them. The code is visible Text in your private Shortcut and may iCloud-sync or travel with exports; review the storage warning before saving it.
+4. Install and pair the Android web app, or add the [iPhone Shortcut](docs/IOS_V5_COPY.md). Use a phone upload code, never the owner code. The signed Chinese v5 template configures the address and upload-only code once, then reuses them. The code is visible Text in your private Shortcut and may iCloud-sync or travel with exports; review the storage warning before saving it.
 5. Share your service’s `/sample.png` with a short question. **Success means the same dot conversation shows the answer and original image attachment.** A phone “sent” message only confirms inbox receipt.
 
 After this check, choose whether to send private photos. For everyday use: select one image, optionally write a question, send, then return to your dot.
 
+**Speed:** delivery is asynchronous. A real recording failed the 30-second image-visible target. This release does not promise delivery within 30 seconds; do not repeatedly resend while waiting.
+
 ## What still needs attention
 
-Newly issued upload and ChatGPT access grants last **30 days by default** and need normal renewal or reauthorization. Existing grants keep their old expiry; upgrading code does not extend a connection. Actual30-day client continuity and v4 iPhone sharing remain unverified. Restarting the Mac or reusing an expired code does not extend it. Keeping the service running does not renew authorization. The server still grants hourly event leases and respects a shorter client request; these leases refresh separately from the30-day access grant. Mac sleep, shutdown or lost network access interrupts delivery; temporary addresses are unsuitable for long-term use. See [configuration and expiry](docs/CONFIGURATION.md).
+Newly issued upload and ChatGPT access grants last **30 days by default** and need normal renewal or reauthorization. Existing grants keep their old expiry; upgrading code does not extend a connection. Continuous operation over the full 30 days remains unverified. Restarting the Mac or reusing an expired code does not extend it. Keeping the service running does not renew authorization. The server still grants hourly event leases and respects a shorter client request; these leases refresh separately from the30-day access grant. Mac sleep, shutdown or lost network access interrupts delivery; temporary addresses are unsuitable for long-term use. See [configuration and expiry](docs/CONFIGURATION.md).
 
 Reading an image through the connected app does not itself display a native chat attachment. Your dot also needs supported tools to save the original privately and send it as an assistant attachment. Missing tools require a handoff. No undocumented ChatGPT API or author account is supplied.
 
-One real user environment completed Android and iPhone image-and-question sharing into the original dot conversation with assistant attachments. The revised Android page also received narrow-screen browser checks. **An independent second user's installation and long-term operation remain unverified.** See [validation](docs/VALIDATION.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
+One real user environment completed Android and iPhone image-and-question sharing into the original dot conversation with assistant attachments. The Chinese v5 Shortcut was used in a recorded iPhone send; uninterrupted 30-day use and repeated real-device reuse without setup prompts remain unverified. The revised Android page also received narrow-screen browser checks. **An independent second user's installation and long-term operation remain unverified.** See [validation](docs/VALIDATION.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
 
 ## Before sharing private images
 
