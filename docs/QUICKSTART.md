@@ -96,7 +96,7 @@ python3 show_pairing.py phone
 
 核对手机页面的目的地，将这个**仅上传码**输入手机配对框，再清除终端显示。不要使用 owner、OAuth read、OpenAI 或 Tunnel 凭据。配对界面会说明传输范围；只分享你主动选择的内容。
 
-iOS 使用 [Shortcuts 指南](IOS_SHORTCUT.md)，其原生源码另见 [iOS README](../ios/README.md)。不要把 Safari 添加主屏当成 Android 同样的文件分享接收器；已提供签名 Shortcut 候选与 Mac 导入预览证据；已有单用户iPhone实际链路证据，其他用户仍需自己的真机验收；没有已签名原生 App。
+iOS 使用 [首次保存码的v4指南](IOS_V4_SETUP.md)，其原生源码另见 [iOS README](../ios/README.md)。不要把 Safari 添加主屏当成 Android 同样的文件分享接收器；已提供签名 Shortcut 候选与 Mac 导入预览证据；已有单用户iPhone实际链路证据，其他用户仍需自己的真机验收；没有已签名原生 App。
 
 ## 7. 原对话订阅与首次验收
 
@@ -120,6 +120,6 @@ node scripts/sample-upload.mjs
 
 ## 每天使用前记住
 
-当前授权不是永久的：上传及读取/订阅授权一天，事件订阅最多一小时，需要平台续订；本机维护命令已提供，手机自助界面尚未提供。重启服务不会自动续期，再次输入同一手机码也不会延长授权。本机所有者可按 [上传授权维护](PHONE_ACCESS.md) 使用 status/renew/revoke/rotate/recover；请勿删除数据库或重新 setup 来绕过。源图一小时过期；已保存的 Space 附件独立持续保留。请在自己的实例核对过期和正常续订，不把一次成功当长期无人值守保证。
+当前授权不是永久的：新签发上传及读取/订阅授权30天，旧记录不自动延长，事件订阅最多一小时，需要平台续订；本机维护命令已提供，手机自助界面尚未提供。重启服务不会自动续期，再次输入同一手机码也不会延长授权。本机所有者可按 [上传授权维护](PHONE_ACCESS.md) 使用 status/renew/revoke/rotate/recover；请勿删除数据库或重新 setup 来绕过。源图一小时过期；已保存的 Space 附件独立持续保留。请在自己的实例核对过期和正常续订，不把一次成功当长期无人值守保证。
 
 `smoke.mjs` 在临时目录生成独立配置及样本，实际环回 HTTP 完成 fixture OAuth、SDK 订阅、上传去重及原图读取后清理；回调是测试适配器，不使用真实平台或私人数据。它不替代 HTTPS、用户浏览器授权或手机验收。

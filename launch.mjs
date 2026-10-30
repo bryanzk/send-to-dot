@@ -1,3 +1,4 @@
+import {ACCESS_MS} from './access_policy.mjs';
 // Start only after approval of exact HTTPS ingress, private connection and secret scopes.
 import http from 'node:http';import {readFileSync,lstatSync} from 'node:fs';
 import {resolve,sep} from 'node:path';import {fileURLToPath} from 'node:url';
@@ -16,7 +17,7 @@ if(config.pythonExecutable)process.env.DOT_INBOX_PYTHON=config.pythonExecutable;
 config.readCacheDirectory=resolve(project,'state/read-cache');
 const app=createApp(config);app.inbox.sweep();app.cleanupReadCache();const phone=secret(config.phoneCredentialFile);
 // Do not renew expired/revoked phone grants on restart. Initial grant is explicit.
-if(config.initializePhone===true){app.inbox.grant(phone,'owner','upload',86400000);app.inbox.close();console.log('Phone initialized; set initializePhone=false before starting.');process.exit(0);}
+if(config.initializePhone===true){app.inbox.grant(phone,'owner','upload',ACCESS_MS);app.inbox.close();console.log('Phone initialized; set initializePhone=false before starting.');process.exit(0);}
 const serve=nodeHandler(app.fetch,config.origin);
 const server=http.createServer((req,res)=>{observeUpload(req,res,config.audit);if(req.headers.host!=='127.0.0.1:43187'){res.writeHead(403).end();return;}
  let path;try{path=new URL(req.url,'http://127.0.0.1:43187').pathname;}catch{res.writeHead(400).end();return;}

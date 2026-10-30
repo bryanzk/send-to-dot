@@ -1,3 +1,15 @@
+# 30-day/v4 update verification — 2026-10-30
+
+Final regression: **95 Node +84 Python =179 checks passed**, exit0. Actual loopback smoke verified30day fixture upload expiry and OAuth expires_in, SDK subscription, generated upload dedup and exact original read. No real platform token used.
+
+New default upload/OAuth access is30days. Existing DB deadlines are not migrated. Grant bounds, legacy explicit24h record,29day validity/30day expiry, duplicate issuance refusal, upload renewal/rotation/revocation and owner read/subscribe revocation were tested in isolated fixtures. Owner revocation now also clears pending approval codes, and code exchange is transactional; approve→revoke→exchange cannot mint new access. No real access record was created/extended or production service updated in this revision.
+
+V4 public Shortcut has two blank import Text questions and no runtime upload-code Ask.16 static/schema/dataflow checks and Apple signing passed. Mac GUI ran a three-action, no-network saved-Text fixture probe twice and showed the independently expected digest both times with no input prompt. CLI attempts first encountered duplicate-name resolution and later timed out/cancelled; those were not passing checks. Actual v4 import-question behavior and iPhone sharing remain unverified.
+
+Private configured v4 stores visible plaintext, mayiCloudsync and travel with exports. It is notKeychain. Actual code issuance/extension and actual device storage require specific user confirmation; none occurred here. Legacyv2/v3 behavior remains unchanged. One-hour source retention remains unchanged. Event leases remain this server’s hourly policy, not a claimed platform-fixed access limit. Actual ChatGPT30day uninterrupted use is not proven by an expires_in value or simulated clock.
+
+Earlier verification history follows.
+
 # Publication candidate checks — 2026-10-30
 
 The actual freshly extracted package completed `scripts/install.mjs run --approve-local --source-reviewed --accept-access --install-deps` using a generated reserved-domain fixture: pinned npm dependencies installed with lifecycle scripts disabled, new project Python venv/Pillow installed, independent24h fixture access initialized and private preflight passed. Re-running the reviewed installer reused the same configuration and ran preflight without issuing new grants. No production credentials were used.

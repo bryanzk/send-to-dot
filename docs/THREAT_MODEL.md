@@ -27,7 +27,7 @@ Trusted components are the user's device and browser/Shortcuts runtime, the loca
 
 Android stores its upload token and pending image in the origin's IndexedDB. There is no claimed hardware-backed or browser-independent secret vault. Shared/compromised devices and origin script compromise can expose that token. Clear device state when finished; server revocation is separate. Expired phone images are cleared when the app next opens, not by a guaranteed background timer.
 
-The iOS starter template asks for the upload token at runtime. Do not put real tokens in a downloadable/shared Shortcut, screenshot, log, clipboard history, or a file submitted to Apple for signing. No arbitrary Shortcuts Keychain API is assumed. Native keychain-backed provisioning is future work.
+Legacy v2/v3 ask for upload code at runtime. V4 public template has blank setup fields; the user may explicitly consent to save an upload-only code as visible plain Text in their private Shortcut. It may sync through iCloud or leak with export/sharing; it is not Keychain or hardware-backed storage. Saving does not extend server lifetime. Do not put real tokens in a downloadable/shared Shortcut, screenshot, log, clipboard history, or a file submitted to Apple for signing. No arbitrary Shortcuts Keychain API is assumed. Native keychain-backed provisioning is future work.
 
 ## Operational limits
 
@@ -38,3 +38,7 @@ Do not publish this working environment. Release only the audited clean source p
 ## Redacted operational diagnostics
 
 Upload-route logs contain only UTC time, a server-generated correlation ID, normalized HTTP method, status and a fixed error category. No request headers, body, image bytes, filenames, IP addresses or client-provided IDs are logged by this observer. Existing OAuth audits use fixed event/outcome values only. Local log retention/rotation and disk monitoring belong to the deployment operator; these diagnostics are not a hosted monitoring service. Private attachment receipts remain in the owner-only local ledger and must not enter a public source package.
+
+##30-day access update
+
+New upload and read/subscribe grants expire after30days; existing token deadlines stay unchanged. Longer access increases exposure from a stolen code. Owner upload maintenance is explicit and can revoke/rotate; read_access.py revokes ChatGPT grants, subscriptions and unexchanged codes. An in-flight read or already saved Library attachment cannot be recalled by token revocation. Source data retention remains1h and old clients remain valid until their recorded expiry. A30day expires_in response is not a30day real-client uptime test.

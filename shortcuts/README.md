@@ -1,28 +1,28 @@
-> v0/v1 had incorrect action parameter keys and must not be used. Use the distinct v3 candidate for optional questions; v2 remains the compatible image-only revision.
+# iPhone Share Sheet templates
 
-# Send to dot: iOS Share Sheet template
+Use [v4 setup](../docs/IOS_V4_SETUP.md) for once-only address and upload-code configuration. Every public template has **blank credential fields**. V4 stores the configured value as visible Text in the user's private Shortcut; it can iCloud-sync or leak with export/sharing. Obtain specific consent before entering a real code. This is not Keychain.
 
-Start with [the v3 iPhone guide](../docs/IOS_CAPTION.md). One real user completed iPhone image/question sharing, original-dot image read and native assistant attachment acceptance. This is not broader device/error-path or independent-user acceptance.
+| Version | Image/question | Upload code |
+|---|---|---|
+| v2 | Image only; corrected input fields | Enter at each run |
+| v3 | Image plus optional manually typed question | Enter at each run |
+| v4 | Same image/question protocol | Configure once, reuse saved private Text |
 
-- `Send-to-dot-v3.shortcut`: Apple-signed, no-secret optional-question template; see the v3 guide.
-- `Send-to-dot-v2.shortcut`: Apple-signed, no-secret distribution candidate.
-- `Send-to-dot-v2.unsigned.shortcut`: generated binary plist source; do not use as the distributable.
-- `Send-to-dot-v2.actions.json`: human-reviewable action graph.
-- `build_shortcut.py`: dependency-free deterministic generator.
-- `test_shortcut.py`: static contract checks, not runtime coverage.
-- `VALIDATION.md`: observed checks and remaining acceptance work.
+V0/v1 had incorrect action keys and must not be used. V2/v3 remain compatible; upgrading the template does not change or extend any server grant. A new server grant defaults to30days, but an existing saved code retains its actual recorded expiry.
 
-No user deployment domain or upload code is embedded in the public template. The nonsecret stable HTTPS origin is requested once by an import question and saved in the user’s private copy. Only the short-lived upload code is requested at runtime. The upload code input is ordinary visible text, not a password vault. Do not publish a configured private copy.
+- `Send-to-dot-v4.shortcut`: Apple-signed blank distribution template.
+- `Send-to-dot-v4.unsigned.shortcut`: generated binary plist, for review/signing.
+- `Send-to-dot-v4.actions.json`: reviewable action graph.
+- `build_shortcut_v4.py`: dependency-free generator.
+- `v4_setup_test.py`:16 static/schema/dataflow checks, not an iPhone acceptance test.
 
-On a Mac with Python 3 and Apple's installed Shortcuts CLI:
+Build/sign only a blank template:
 
 ```sh
-python3 shortcuts/build_shortcut.py
-python3 shortcuts/test_shortcut.py
-plutil -lint shortcuts/Send-to-dot-v2.unsigned.shortcut
-shortcuts sign --mode anyone --input shortcuts/Send-to-dot-v2.unsigned.shortcut --output shortcuts/Send-to-dot-v2.shortcut
+python3 shortcuts/build_shortcut_v4.py
+shortcuts sign --mode anyone --input shortcuts/Send-to-dot-v4.unsigned.shortcut --output shortcuts/Send-to-dot-v4.shortcut
 ```
 
-Apple's CLI supports run/list/view/sign, not create; this generator uses the public workflow container/action serialization used by compiler projects and the system's own public gallery sample. Only sign no-sensitive-data templates: Apple's signing validation sends the workflow to Apple. Signing can need normal host access that a restricted sandbox lacks. Do not bypass system confirmation, permissions or terms.
+Do not sign, export, share or commit a private copy containing a real code. Never use owner/read/OpenAI/Tunnel credentials as an upload code. If a code expires or is revoked/rotated, obtain the specifically authorized replacement and edit the private Text field. A changed origin requires reviewing both destination and its code.
 
-`ios_<SHA256(file)>` is the deterministic submission ID: an uncertain retry uses the same supplied bytes. Identical intentional reshares within the inbox retention window are deduplicated. The template does not convert HEIC or resize a photo. It sends the source app's supplied representation as an HTTP File body with only upload privileges.
+V4 signature and static tests passed. A separate Mac no-network saved-Text probe ran twice and returned the same expected fixture digest without input prompts. It is not the full Shortcut/iPhone/network flow. Existing real v2/v3 image-question trial evidence is not v4 acceptance; see [validation](VALIDATION.md).

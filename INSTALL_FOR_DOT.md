@@ -26,7 +26,7 @@ If local execution or the needed platform tools are absent, report the exact mis
 
 ## 2. Get only the necessary user decisions
 
-Before creating production access, describe the actual host/destination, image transfer, one-user upload-only grant, owner/read/subscribe authorization,24h grant lifetime and1h source retention. Obtain the current environment's required approval. Phone permissions remain upload-only. Do not issue indefinite grants or disable authentication.
+Before creating production access, describe the actual host/destination, image transfer, one-user upload-only grant, owner/read/subscribe authorization,30-day new-grant lifetime (existing grants remain unchanged) and1h source retention. Obtain the current environment's required approval. Phone permissions remain upload-only. Do not issue indefinite grants or disable authentication.
 
 Use an existing user-approved fixed HTTPS endpoint if available. Otherwise ask the user to select one concrete hosting/domain/ingress option and any cost limit. Do not purchase hosting, create a tunnel/account or configure DNS/firewall/power settings from this guide alone. Temporary Quick Tunnel is trial-only; a changed origin requires normal migration/reconnection.
 
@@ -95,9 +95,9 @@ Large images may return a viewing preview plus a short-lived read receipt. The a
 ## 6. Give the user one phone handoff and verify
 
 - Android: their fixed HTTPS homepage, Chrome install, their upload-only code through safe handoff. Then one generated PNG/JPEG through the real system share sheet, optional manual question and Send.
-- iPhone: `shortcuts/Send-to-dot-v3.shortcut`, their root HTTPS address once; upload-only code each run. Do not embed credentials in a distributed Shortcut. Installation and actual phone sharing are the user's action.
+- iPhone: `shortcuts/Send-to-dot-v4.shortcut`, their root HTTPS address and upload-only code once, only after specific consent for visible private-Shortcut Text storage and possible iCloud/export copies. No Keychain claim. Do not embed credentials in a distributed Shortcut. Installation and actual phone sharing are the user's action.
 - Validate event in this dot, actual image/question match, original private attachment, same-conversation answer and duplicate skip. Ask the user whether the attachment actually appears; an accepted send receipt alone does not prove rendering.
-- Return the fixed address, observed stages, expiry/renewal instructions, stop/recovery commands and remaining unknowns. Never claim an unchanged24h grant is permanent one-time configuration.
+- Return the fixed address, observed stages, expiry/renewal instructions, stop/recovery commands and remaining unknowns. Never claim an unchanged old grant is permanent one-time configuration.
 
 ## Evidence levels
 

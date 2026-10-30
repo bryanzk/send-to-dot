@@ -35,9 +35,9 @@ def write_new(path, text):
 
 def digest(value): return hashlib.sha256(value.encode()).hexdigest()
 
-def maintain(root, action, hours=24, clock=time.time):
-    if action not in ('status', 'renew', 'revoke', 'rotate', 'recover') or not 1 <= hours <= 24:
-        raise ValueError('Choose status/renew/revoke/rotate/recover; hours must be 1..24')
+def maintain(root, action, hours=720, clock=time.time):
+    if action not in ('status', 'renew', 'revoke', 'rotate', 'recover') or not 1 <= hours <= 720:
+        raise ValueError('Choose status/renew/revoke/rotate/recover; hours must be 1..720 (at most30days)')
     root = Path(root).resolve()
     cfg = json.loads(read_private(checked(root/'approved.config.json')))
     state, secret_dir = checked(root/'state', True), checked(root/'.secrets', True)
@@ -106,7 +106,9 @@ def maintain(root, action, hours=24, clock=time.time):
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',choices=['status','renew','revoke','rotate','recover'])
-    parser.add_argument('--hours',type=int,default=24)
+    duration=parser.add_mutually_exclusive_group()
+    duration.add_argument('--hours',type=int)
+    duration.add_argument('--days',type=int)
     args=parser.parse_args()
-    try: print(json.dumps(maintain(Path(__file__).resolve().parents[1],args.action,args.hours)))
+    try: print(json.dumps(maintain(Path(__file__).resolve().parents[1],args.action,(args.days*24 if args.days is not None else args.hours if args.hours is not None else 720))))
     except (ValueError,OSError,sqlite3.Error) as e: raise SystemExit('Upload access stopped: '+str(e))

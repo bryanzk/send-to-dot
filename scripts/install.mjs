@@ -21,7 +21,7 @@ export async function installer({root=project,action='plan',origin,approveLocal=
  const capabilities=Object.fromEntries(['local_exec','browser','events','library','attachments'].map(n=>[n,capabilityNames.includes(n)?'caller_declared_unverified':'unknown']));
  if(action==='plan'||action==='status')return {status:action==='plan'?'plan_only':checkpoint?.status??'not_started',mutations:false,origin:origin??null,sourceVersion:pkg.version,sourceTrust:'requires official source/version review; project name is not authentication',runtime:{node:process.versions.node,posix:typeof process.getuid==='function'},capabilities,checkpoint:checkpoint??null,next:nativeNext};
  if(!origin)throw Error('Supply your exact HTTPS origin');
- if(action==='run'&&(!approveLocal||!sourceReviewed||(!config&&!acceptAccess)))return {status:'approval_required',mutations:false,required:['--approve-local','--source-reviewed',...(!config?['--accept-access (local one-user storage/owner/upload secrets; upload grant24h)']:[])],next:nativeNext};
+ if(action==='run'&&(!approveLocal||!sourceReviewed||(!config&&!acceptAccess)))return {status:'approval_required',mutations:false,required:['--approve-local','--source-reviewed',...(!config?['--accept-access (local one-user storage/owner/upload secrets; upload grant30days)']:[])],next:nativeNext};
  if(typeof process.getuid!=='function'||!supportedNode())throw Error('Use supported POSIX Node25.6.1 or newer');
  if(!trial&&new URL(origin).hostname.endsWith('.trycloudflare.com'))throw Error('Temporary ingress requires --trial and is not daily-use readiness');
  if(!config&&(fs.existsSync(path.join(root,'.secrets'))||fs.existsSync(path.join(root,'state/private.sqlite'))))throw Error('Incomplete setup; preserve existing files and inspect before recovery');
@@ -35,7 +35,7 @@ export async function installer({root=project,action='plan',origin,approveLocal=
   const result=await invoke(stage);state.stages[stage]=result.ok?'passed':'failed';state.updatedAt=new Date().toISOString();state.status=result.ok?'in_progress':'failed';save(root,state);
   if(!result.ok)return {status:'failed',stage,detail:'Stage failed; inspect locally without sharing secrets. Existing configuration preserved.',resume:'Correct this stage, then rerun the same reviewed command',secretOutput:false};
  }
- state.status='local_ready_platform_pending';save(root,state);return {status:'human_action_required',localReady:true,origin,stages:state.stages,capabilities,next:nativeNext,grantLifetime:'24h; no refresh token or automatic extension',secretOutput:false};
+ state.status='local_ready_platform_pending';save(root,state);return {status:'human_action_required',localReady:true,origin,stages:state.stages,capabilities,next:nativeNext,grantLifetime:'30days for newly issued grants; existing deadlines unchanged; no automatic extension',secretOutput:false};
  }finally{fs.closeSync(lock);fs.unlinkSync(lockPath);}
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){try{const result=await installer(parse(process.argv.slice(2)));console.log(JSON.stringify(result,null,2));if(['failed','https_check_failed','approval_required'].includes(result.status))process.exitCode=1;}catch{console.error(JSON.stringify({status:'stopped',reason:'Unsafe or incomplete source/configuration, missing prerequisites or invalid options. Review INSTALL_FOR_DOT.md; do not overwrite or expose secrets.'}));process.exitCode=1;}}

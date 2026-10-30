@@ -48,8 +48,14 @@ class PhoneAccessTests(unittest.TestCase):
         self.assertEqual(self.call('recover')['status'],'rotation_completed');self.assertEqual(self.phone.read_text(),new)
         # Simulate commit+rename completed but journal cleanup interrupted.
         prepare();self.assertEqual(self.call('recover')['status'],'rotation_completed')
+    def test_thirty_day_renew_and_rotation_keep_scope_and_revoke(self):
+        now=1000000
+        r=self.call('renew');self.assertEqual(r['expiresAt'],now+30*86400000)
+        self.assertEqual(self.call('status')['expiresAt'],r['expiresAt'])
+        self.call('rotate');self.assertEqual(self.call('status')['expiresAt'],now+30*86400000)
+        self.call('revoke');self.assertEqual(self.call('status')['status'],'expired_or_revoked')
     def test_invalid_hours_and_foreign_path_refused(self):
-        with self.assertRaises(ValueError):m.maintain(self.root,'renew',25)
+        with self.assertRaises(ValueError):m.maintain(self.root,'renew',721)
         cfg=json.loads(self.config.read_text());cfg['phoneCredentialFile']=str(self.root/'outside');self.config.write_text(json.dumps(cfg))
         with self.assertRaises(ValueError):self.call('rotate')
 

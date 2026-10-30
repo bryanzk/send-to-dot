@@ -81,19 +81,20 @@ owner 授权码只用于你自己的授权页。不得把它发送到聊天或�
 
 #### iPhone
 
-1. 打开本包的 `shortcuts/Send-to-dot-v3.shortcut`。
+1. 打开本包的 `shortcuts/Send-to-dot-v4.shortcut`。
 2. 在「快捷指令」中添加它。
 3. 配置地址 `https://inbox.example.com`。此处不加 `/mcp` 或 `/api/upload`。
+4. 阅读保存说明；同意后，在第二个设置问题中本人填写手机专用上传码。
 
-**在快捷指令列表找到 Send-to-dot-v3，才继续。** 相册分享时按[iPhone 指南](docs/IOS_CAPTION.md)运行它。
+**在快捷指令列表找到 Send-to-dot-v4，才继续。** 相册分享时按[iPhone 指南](docs/IOS_V4_SETUP.md)运行它。
 
-当前快捷指令每次发送仍要求手机专用上传码。它只保存地址，不保存码。不得填写 owner 授权码或 OpenAI 密钥。
+v4 首次配置地址和手机专用上传码，以后发送复用。码保存在私人快捷指令的可见文本中，可能随 iCloud 同步或导出。保存前必须了解并确认这个范围。不得分享填好码的副本，不得填写 owner 授权码或 OpenAI 密钥。
 
 ### 5. 用一张不私密的图片验证
 
 1. 从你的地址下载 `/sample.png`。例如 `https://inbox.example.com/sample.png`。
 2. 在相册选择这张样本，打开系统分享。
-3. Android 选择 Send to dot；iPhone 选择 Send-to-dot-v3。
+3. Android 选择 Send to dot；iPhone 选择 Send-to-dot-v4。
 4. 可以填写一句针对图片的问题，再发送。
 5. 回到第 3 步的原 dot 对话。
 
@@ -115,9 +116,9 @@ Android 成功发送后会清空当前图片。页面没有再编辑或重试按
 
 ## 能否只配置一次？
 
-**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone 保存收件地址，但每次发送仍要求上传码。
+**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone v4 保存地址和上传码，不再逐次询问码。
 
-当前授权默认 24 小时。到期必须正常续期或重新授权。重启电脑或重填旧码不会延长授权。
+新签发的上传和 ChatGPT 访问授权默认 30 天。旧连接仍按原期限到期；更新代码不会自动延长它们。到期必须正常续期或重新授权。重启电脑或重填旧码不会延长授权。
 
 换手机、清除网站数据或换网址后，必须检查配对。授权撤销后，旧连接不再有效。详情见[配置和有效期](docs/CONFIGURATION.md)。
 
@@ -139,6 +140,6 @@ Mac 关机、睡眠或断网时不能收件。临时网址会失效，不适合�
 
 ## 深入说明
 
-[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_CAPTION.md)
+[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_V4_SETUP.md)
 
 [技术原理](docs/ARCHITECTURE.md) · [隐私与安全](docs/THREAT_MODEL.md) · [开发验证](docs/VALIDATION.md) · [依赖许可](docs/DEPENDENCIES.md) · [发布检查表](docs/RELEASE_CHECKLIST.md)

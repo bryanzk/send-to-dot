@@ -1,3 +1,4 @@
+import {ACCESS_MS,ACCESS_DAYS} from '../access_policy.mjs';
 // One-time BYO deployment initialization. No model API key or author resources.
 import {randomBytes} from 'node:crypto';
 import {existsSync,mkdirSync,writeFileSync,openSync,closeSync,unlinkSync,lstatSync,realpathSync} from 'node:fs';
@@ -29,9 +30,9 @@ export function initialize({root,origin,redirects=['https://chatgpt.com/connecto
   const storage=randomBytes(32),owner=randomBytes(32).toString('base64url'),phone=randomBytes(32).toString('base64url');
   const secretPaths={storageKeyFile:join(secrets,'storage'),approvalSecretFile:join(secrets,'owner-approval'),phoneCredentialFile:join(secrets,'phone-upload')};
   for(const [path,value]of [[secretPaths.storageKeyFile,storage.toString('base64')],[secretPaths.approvalSecretFile,owner],[secretPaths.phoneCredentialFile,phone]])writeFileSync(path,value,{mode:0o600,flag:'wx'});
-  db=new Inbox(database,storage);db.grant(phone,'owner','upload',86400000);db.close();db=null;
+  db=new Inbox(database,storage);db.grant(phone,'owner','upload',ACCESS_MS);db.close();db=null;
   const config={origin,redirects,database,...secretPaths,pythonExecutable,initializePhone:false};writeFileSync(configPath,JSON.stringify(config,null,2)+'\n',{mode:0o600,flag:'wx'});
-  return {status:'ready_to_start',origin,next:['node scripts/preflight.mjs approved.config.json','node launch.mjs approved.config.json'],secretsPrinted:false,phoneGrantHours:24};
+  return {status:'ready_to_start',origin,next:['node scripts/preflight.mjs approved.config.json','node launch.mjs approved.config.json'],secretsPrinted:false,phoneGrantDays:ACCESS_DAYS,phoneGrantHours:ACCESS_DAYS*24};
  }finally{db?.close();closeSync(fd);unlinkSync(lock);}
 }
 export function cli(args){

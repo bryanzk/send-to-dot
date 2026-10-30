@@ -9,7 +9,7 @@ Current state: MIT source prepared for the authorized public GitHub repository; 
 - [x] Configuration storage,24h grants,1h source TTL versus persistent Library attachments,Mac/hosting dependency and expiry/revocation consequences documented.
 - [x] Privacy/threat model/troubleshooting and platform-tool boundaries included; no claim of automatic universal native attachment API.
 - [x] Locked dependency inventory and available license notices prepared.
-- [x] Latest fresh-package regression:92 Node +65 Python checks passed.
+- [x] Latest30day/v4 revision regression:95 Node +84 Python checks passed; lifetime/expiry/revocation and blank-template tests added.
 - [x] Single-user Android/iPhone actual image+question round trips accepted; Android simplified UI browser-tested at320/390px with fixture responses.
 - [x] Candidate archive manifest/privacy extraction check and isolated archive smoke completed; rerun structural/hash scan whenever notice/docs change. Exact version/hash recorded with the private delivery receipt.
 
@@ -33,3 +33,12 @@ This checklist does not itself publish the repository, extend authorization or g
 - [x] Same-user Mac service mechanics tested with an actual isolated no-network heartbeat job across command completion; verified stopped/cleaned. Stable publicHTTPS remains user-owned setup.
 - [x] Missing HTTPS/platform capability and OAuth/phone steps are explicit handoffs; no actual cross-account authorization asserted.
 - [ ] Run an independent beginner walkthrough from the public source; verify the response and original attachment in the existing dot conversation. Local checks alone do not complete this item.
+
+##30-day / saved-code revision
+
+- [x] New upload/OAuth grant lifetimes30days; old stored deadlines preserved.
+- [x] Owner-local phone renew/rotate/revoke and read/subscribe revoke including pending approval codes tested; OAuth code exchange serialized.
+- [x] V4 blank template signed;16 static/schema/dataflow tests and two Mac GUI no-network saved-Text fixture runs passed.
+- [ ] Actual production30day upload issuance/extension and private iPhone code storage: await specific user confirmation.
+- [ ] Actual ChatGPT read/subscribe30day reconnection: separate confirmation; phone upload approval does not cover it.
+- [ ] V4 full iPhone share/expiry/reconfigure and real30day client continuity acceptance.
