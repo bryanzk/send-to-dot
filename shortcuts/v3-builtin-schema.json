@@ -1,0 +1,380 @@
+{
+  "source": "https://raw.githubusercontent.com/frontboat/shortcutkit/main/data/builtin-actions.json",
+  "source_sha256": "b84ee18fe289b2ce69828fefe19aee857d3b2810ccceb07e3e1d11493e7ec195",
+  "note": "Technical identifiers and parameter metadata only; descriptive text omitted.",
+  "actions": {
+    "is.workflow.actions.alert": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFAlertActionTitle": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFAlertActionMessage": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFAlertActionCancelButtonShown": {
+          "Class": "WFSwitchParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.ask": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFInputType": {
+          "Class": null,
+          "Items": [
+            "Date",
+            "Date and Time",
+            "Number",
+            "Text",
+            "Time",
+            "URL"
+          ]
+        },
+        "ShowWhenRun": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAllowsMultilineText": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionAllowsDecimalNumbers": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionAllowsNegativeNumbers": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswer": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswerDate": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswerDateAndTime": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswerNumber": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswerTime": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionDefaultAnswerURL": {
+          "Class": null,
+          "Items": null
+        },
+        "WFAskActionPrompt": {
+          "Class": null,
+          "Items": null
+        },
+        "urlAnswer": {
+          "Class": null,
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.base64encode": {
+      "InputParameterKey": "WFInput",
+      "Parameters": {
+        "WFEncodeMode": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "Encode",
+            "Decode"
+          ]
+        },
+        "WFBase64LineBreakMode": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "None",
+            "Every 64 Characters",
+            "Every 76 Characters"
+          ]
+        },
+        "WFInput": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.choosefrommenu": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFMenuPrompt": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFMenuItems": {
+          "Class": "WFChooseFromMenuArrayParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.comment": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFCommentActionText": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.conditional": {
+      "InputParameterKey": "WFConditions",
+      "Parameters": {}
+    },
+    "is.workflow.actions.count": {
+      "InputParameterKey": "Input",
+      "Parameters": {
+        "WFCountType": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "Items",
+            "Characters",
+            "Words",
+            "Sentences",
+            "Lines"
+          ]
+        },
+        "Input": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.dictionary": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFItems": {
+          "Class": "WFDictionaryParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.downloadurl": {
+      "InputParameterKey": "WFURL",
+      "Parameters": {
+        "WFURL": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFHTTPMethod": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        },
+        "ShowHeaders": {
+          "Class": "WFExpandingParameter",
+          "Items": null
+        },
+        "WFHTTPHeaders": {
+          "Class": "WFDictionaryParameter",
+          "Items": null
+        },
+        "WFHTTPBodyType": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "JSON",
+            "Form",
+            "File"
+          ]
+        },
+        "WFFormValues": {
+          "Class": "WFDictionaryParameter",
+          "Items": null
+        },
+        "WFJSONValues": {
+          "Class": "WFDictionaryParameter",
+          "Items": null
+        },
+        "WFRequestVariable": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.exit": {
+      "InputParameterKey": "WFResult",
+      "Parameters": {}
+    },
+    "is.workflow.actions.getitemfromlist": {
+      "InputParameterKey": "WFInput",
+      "Parameters": {
+        "WFItemSpecifier": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "First Item",
+            "Last Item",
+            "Random Item",
+            "Item At Index",
+            "Items in Range"
+          ]
+        },
+        "WFItemIndex": {
+          "Class": "WFNumberFieldParameter",
+          "Items": null
+        },
+        "WFItemRangeStart": {
+          "Class": "WFNumberFieldParameter",
+          "Items": null
+        },
+        "WFItemRangeEnd": {
+          "Class": "WFNumberFieldParameter",
+          "Items": null
+        },
+        "WFInput": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.gettext": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFTextActionText": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.getvalueforkey": {
+      "InputParameterKey": "WFInput",
+      "Parameters": {
+        "WFGetDictionaryValueType": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "Value",
+            "All Keys",
+            "All Values"
+          ]
+        },
+        "WFDictionaryKey": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFInput": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.hash": {
+      "InputParameterKey": "WFInput",
+      "Parameters": {
+        "WFHashType": {
+          "Class": "WFEnumerationParameter",
+          "Items": [
+            "MD5",
+            "SHA1",
+            "SHA256",
+            "SHA512"
+          ]
+        },
+        "WFInput": {
+          "Class": "WFVariablePickerParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.properties.files": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFContentItemPropertyName": {
+          "Class": null,
+          "Items": [
+            "Creation Date",
+            "File Extension",
+            "File Path",
+            "File Size",
+            "Last Modified Date",
+            "Name"
+          ]
+        },
+        "WFInput": {
+          "Class": null,
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.showresult": {
+      "InputParameterKey": "Text",
+      "Parameters": {
+        "Text": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.text.match": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "ShowWhenRun": {
+          "Class": null,
+          "Items": null
+        },
+        "WFMatchTextCaseSensitive": {
+          "Class": null,
+          "Items": null
+        },
+        "WFMatchTextPattern": {
+          "Class": null,
+          "Items": null
+        },
+        "text": {
+          "Class": null,
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.url": {
+      "InputParameterKey": null,
+      "Parameters": {
+        "WFURLActionURL": {
+          "Class": "WFURLParameter",
+          "Items": null
+        }
+      }
+    },
+    "is.workflow.actions.text.replace": {
+      "InputParameterKey": "WFInput",
+      "Parameters": {
+        "WFReplaceTextFind": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFReplaceTextReplace": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        },
+        "WFReplaceTextCaseSensitive": {
+          "Class": "WFSwitchParameter",
+          "Items": null
+        },
+        "WFReplaceTextRegularExpression": {
+          "Class": "WFSwitchParameter",
+          "Items": null
+        },
+        "WFInput": {
+          "Class": "WFTextInputParameter",
+          "Items": null
+        }
+      }
+    }
+  }
+}

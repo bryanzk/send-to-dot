@@ -1,0 +1,792 @@
+{
+  "WFWorkflowName": "Send to dot v2",
+  "WFWorkflowActions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
+      "WFWorkflowActionParameters": {
+        "UUID": "0CDD9A31-3073-54D6-8D85-4D78EC8892E8",
+        "CustomOutputName": "Privacy note",
+        "WFCommentActionText": "No embedded endpoint or credential. Accept exactly one supplied PNG/JPEG. No image conversion/resizing. Ask for upload-only code at runtime; the input may be visible. Never enter owner/read/OpenAI/Tunnel credentials. This template does not store the code or use clipboard. The OS/source app may supply an exported representation. Inbox expiry and persistent Space attachments are separate. iPhone acceptance is still required."
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.count",
+      "WFWorkflowActionParameters": {
+        "UUID": "AA344E1F-F6C5-5F3B-ABE0-DC5B9668EAB0",
+        "CustomOutputName": "Item count",
+        "Input": {
+          "Value": {
+            "Type": "ExtensionInput"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFCountType": "Items"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "481A64DD-3632-5EAD-B3BA-55CB07087BA3",
+        "CustomOutputName": "Too many",
+        "GroupingIdentifier": "DDE77089-9A35-52EC-B4B7-D48458D706D4",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "AA344E1F-F6C5-5F3B-ABE0-DC5B9668EAB0",
+              "OutputName": "Item count"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 2,
+        "WFNumberValue": 1
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "A90A3D15-C38B-5E64-8C42-BE8C59017F50",
+        "CustomOutputName": "message-3",
+        "Text": {
+          "Value": {
+            "string": "Share exactly one PNG/JPEG. Multiple items were not sent."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "08C92D8C-2A7D-5699-89FE-8F3D86471CBF",
+        "CustomOutputName": "stop-4"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "07FDC13D-A95D-5351-99C3-E84E9CF487D0",
+        "CustomOutputName": "Too many-end",
+        "GroupingIdentifier": "DDE77089-9A35-52EC-B4B7-D48458D706D4",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "DB7A3AEB-A536-56E1-BADD-AAF18B59CD2D",
+        "CustomOutputName": "No image",
+        "GroupingIdentifier": "F066821B-B51B-579D-A0F6-35B9936F71DB",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "AA344E1F-F6C5-5F3B-ABE0-DC5B9668EAB0",
+              "OutputName": "Item count"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 0,
+        "WFNumberValue": 1
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "A05A6B66-9539-5D6D-9A00-737FF87E0AC5",
+        "CustomOutputName": "message-7",
+        "Text": {
+          "Value": {
+            "string": "Use Photos or Files → Share → Send to dot with one PNG/JPEG."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "0D32FC7C-B941-5E6D-99A7-22B3121A018F",
+        "CustomOutputName": "stop-8"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "3AFA0B45-AE70-5B1C-A30F-1DD56F2337D1",
+        "CustomOutputName": "No image-end",
+        "GroupingIdentifier": "F066821B-B51B-579D-A0F6-35B9936F71DB",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getitemfromlist",
+      "WFWorkflowActionParameters": {
+        "UUID": "3FFB2F65-AA19-54EE-8F2B-D49D939AC396",
+        "CustomOutputName": "Original supplied file",
+        "WFInput": {
+          "Value": {
+            "Type": "ExtensionInput"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFItemSpecifier": "First Item"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.properties.files",
+      "WFWorkflowActionParameters": {
+        "UUID": "88ABC3DD-9133-5DFE-B116-643F24D1534E",
+        "CustomOutputName": "File extension",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3FFB2F65-AA19-54EE-8F2B-D49D939AC396",
+            "OutputName": "Original supplied file"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFContentItemPropertyName": "File Extension"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "UUID": "249DE10A-306B-52DC-A4EA-B13F358ED8D9",
+        "CustomOutputName": "Allowed file extension",
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "88ABC3DD-9133-5DFE-B116-643F24D1534E",
+                "OutputName": "File extension"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "(?i)^(png|jpe?g)$"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "C1E92D8D-A354-57AF-862A-CC2C9FF2BC63",
+        "CustomOutputName": "Unsupported format",
+        "GroupingIdentifier": "C00AB099-1092-544E-89E0-D80C4CB85E2C",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "249DE10A-306B-52DC-A4EA-B13F358ED8D9",
+              "OutputName": "Allowed file extension"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 101
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "CB330126-E817-549D-8186-092C211AE2D7",
+        "CustomOutputName": "message-14",
+        "Text": {
+          "Value": {
+            "string": "Only supplied PNG/JPEG files are accepted. HEIC, PDF and video are not converted. Export a PNG/JPEG explicitly if needed."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "2983010F-3417-5AF2-A2DB-2CAAACFBEB8D",
+        "CustomOutputName": "stop-15"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "67F7BEF8-1CEC-5C1B-BE11-B60924460571",
+        "CustomOutputName": "Unsupported format-end",
+        "GroupingIdentifier": "C00AB099-1092-544E-89E0-D80C4CB85E2C",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "UUID": "5EDBA328-CF12-5DAB-B116-EEB528D2DD0D",
+        "CustomOutputName": "PNG check",
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "88ABC3DD-9133-5DFE-B116-643F24D1534E",
+                "OutputName": "File extension"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "(?i)^png$"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "9605FACB-0857-5D1A-BD4C-F4B18F1F71AF",
+        "CustomOutputName": "Choose MIME",
+        "GroupingIdentifier": "FCFEBB2B-5A8A-5376-8BEC-3DCD1737BE60",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "5EDBA328-CF12-5DAB-B116-EEB528D2DD0D",
+              "OutputName": "PNG check"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 100
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "UUID": "4C882866-E30A-5CC5-A34C-B5692ED336DA",
+        "CustomOutputName": "PNG MIME",
+        "WFTextActionText": "image/png"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "6D480E16-C58A-5274-AA4B-37588798145C",
+        "CustomOutputName": "Choose MIME-else",
+        "GroupingIdentifier": "FCFEBB2B-5A8A-5376-8BEC-3DCD1737BE60",
+        "WFControlFlowMode": 1
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "UUID": "9E5CC2E8-4E06-5557-AC21-B92D12563E8E",
+        "CustomOutputName": "JPEG MIME",
+        "WFTextActionText": "image/jpeg"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "41B789E5-E4A6-5FDE-8086-9232937F9CC6",
+        "CustomOutputName": "Choose MIME-end",
+        "GroupingIdentifier": "FCFEBB2B-5A8A-5376-8BEC-3DCD1737BE60",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.hash",
+      "WFWorkflowActionParameters": {
+        "UUID": "D14F85E1-4E3C-5D26-8466-81D8AAD8EFB3",
+        "CustomOutputName": "Original file hash",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3FFB2F65-AA19-54EE-8F2B-D49D939AC396",
+            "OutputName": "Original supplied file"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFHashType": "SHA256"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "UUID": "939AC78F-F16D-5154-95AD-4996106ABEAB",
+        "CustomOutputName": "Stable submission ID",
+        "WFTextActionText": {
+          "Value": {
+            "string": "ios_￼",
+            "attachmentsByRange": {
+              "{4, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "D14F85E1-4E3C-5D26-8466-81D8AAD8EFB3",
+                "OutputName": "Original file hash"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.gettext",
+      "WFWorkflowActionParameters": {
+        "UUID": "6912A764-7ACA-5FCD-9A60-E276237F3B05",
+        "CustomOutputName": "Approved HTTPS origin",
+        "WFTextActionText": ""
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "UUID": "04A879F2-8EE8-5E80-8D52-16BFBFAB67BA",
+        "CustomOutputName": "Exact HTTPS origin check",
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "6912A764-7ACA-5FCD-9A60-E276237F3B05",
+                "OutputName": "Approved HTTPS origin"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^https://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::443)?$"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "730E9A9F-FA7E-5BE0-828D-C40BEBEF863E",
+        "CustomOutputName": "Invalid origin",
+        "GroupingIdentifier": "35F8FCA8-DE13-57F4-AC42-2E83A11231BD",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "04A879F2-8EE8-5E80-8D52-16BFBFAB67BA",
+              "OutputName": "Exact HTTPS origin check"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 101
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "A791CD00-F1D6-527F-84A9-F325C09D4768",
+        "CustomOutputName": "message-28",
+        "Text": {
+          "Value": {
+            "string": "Enter an exact HTTPS origin with no path, query, credentials, fragment or trailing slash. Nothing was uploaded."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "BE542F0C-BCC6-5E32-8B27-257B034CB9AC",
+        "CustomOutputName": "stop-29"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "B6E90F5F-60EF-5CEC-86EE-3565F7E31173",
+        "CustomOutputName": "Invalid origin-end",
+        "GroupingIdentifier": "35F8FCA8-DE13-57F4-AC42-2E83A11231BD",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
+      "WFWorkflowActionParameters": {
+        "UUID": "8D2B6C30-752E-5945-B4A0-F91E47151980",
+        "CustomOutputName": "Destination confirmation",
+        "WFAlertActionTitle": "Send this original image?",
+        "WFAlertActionMessage": {
+          "Value": {
+            "string": "Destination: ￼\nOne original supplied PNG/JPEG, including metadata. Maximum 8 MiB / 16 million pixels is enforced by the server. An API receipt is not a dot reply. Cancel now to send nothing.",
+            "attachmentsByRange": {
+              "{13, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "6912A764-7ACA-5FCD-9A60-E276237F3B05",
+                "OutputName": "Approved HTTPS origin"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFAlertActionCancelButtonShown": true
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.previewdocument",
+      "WFWorkflowActionParameters": {
+        "UUID": "E300F916-26F7-53C4-8032-C05862C471EB",
+        "CustomOutputName": "Preview original",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3FFB2F65-AA19-54EE-8F2B-D49D939AC396",
+            "OutputName": "Original supplied file"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.ask",
+      "WFWorkflowActionParameters": {
+        "UUID": "5067A388-15D3-5526-945F-AFFCAF2DB9CA",
+        "CustomOutputName": "Runtime upload-only code",
+        "WFAskActionPrompt": "Enter ONLY this inbox’s short-lived upload-only code. This input may be visible. It is not saved by this Shortcut. Never use owner/read/OpenAI/Tunnel credentials.",
+        "WFInputType": "Text"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.text.match",
+      "WFWorkflowActionParameters": {
+        "UUID": "C24EC157-52AE-59B2-A1FA-628DA9284FAF",
+        "CustomOutputName": "Upload code format check",
+        "text": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "5067A388-15D3-5526-945F-AFFCAF2DB9CA",
+                "OutputName": "Runtime upload-only code"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "WFMatchTextPattern": "^[A-Za-z0-9_-]{24,512}$"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "2B2A99EA-B821-5695-89CA-DBCC949C09DA",
+        "CustomOutputName": "Invalid code",
+        "GroupingIdentifier": "A1AE3ADA-7B83-597B-A30A-119F02AA6FC9",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "C24EC157-52AE-59B2-A1FA-628DA9284FAF",
+              "OutputName": "Upload code format check"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 101
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "79E65C6C-E797-5566-9D10-7B04C465E68C",
+        "CustomOutputName": "message-36",
+        "Text": {
+          "Value": {
+            "string": "The upload-only code format is invalid. Nothing was sent. Do not substitute a more privileged key."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "7B7B267E-D8CC-5707-B39F-6AB8ADE1A130",
+        "CustomOutputName": "stop-37"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "E737B5FD-4AAC-58C8-BFAA-DE2A85727813",
+        "CustomOutputName": "Invalid code-end",
+        "GroupingIdentifier": "A1AE3ADA-7B83-597B-A30A-119F02AA6FC9",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.url",
+      "WFWorkflowActionParameters": {
+        "UUID": "45B91626-64B8-5D65-9FC7-5271862B71B9",
+        "CustomOutputName": "Upload URL",
+        "WFURLActionURL": {
+          "Value": {
+            "string": "￼/api/upload",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "6912A764-7ACA-5FCD-9A60-E276237F3B05",
+                "OutputName": "Approved HTTPS origin"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.downloadurl",
+      "WFWorkflowActionParameters": {
+        "UUID": "F88388D7-4B0D-5377-BA53-AA7C2C7DDA36",
+        "CustomOutputName": "Upload original file",
+        "WFURL": {
+          "Value": {
+            "string": "￼",
+            "attachmentsByRange": {
+              "{0, 1}": {
+                "Type": "ActionOutput",
+                "OutputUUID": "45B91626-64B8-5D65-9FC7-5271862B71B9",
+                "OutputName": "Upload URL"
+              }
+            }
+          },
+          "WFSerializationType": "WFTextTokenString"
+        },
+        "Advanced": true,
+        "ShowHeaders": true,
+        "WFHTTPMethod": "POST",
+        "WFHTTPBodyType": "File",
+        "WFRequestVariable": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "3FFB2F65-AA19-54EE-8F2B-D49D939AC396",
+            "OutputName": "Original supplied file"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFHTTPHeaders": {
+          "Value": {
+            "WFDictionaryFieldValueItems": [
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "Authorization"
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "Bearer ￼",
+                    "attachmentsByRange": {
+                      "{7, 1}": {
+                        "Type": "ActionOutput",
+                        "OutputUUID": "5067A388-15D3-5526-945F-AFFCAF2DB9CA",
+                        "OutputName": "Runtime upload-only code"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              },
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "Origin"
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "￼",
+                    "attachmentsByRange": {
+                      "{0, 1}": {
+                        "Type": "ActionOutput",
+                        "OutputUUID": "6912A764-7ACA-5FCD-9A60-E276237F3B05",
+                        "OutputName": "Approved HTTPS origin"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              },
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "Content-Type"
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "￼",
+                    "attachmentsByRange": {
+                      "{0, 1}": {
+                        "Type": "ActionOutput",
+                        "OutputUUID": "41B789E5-E4A6-5FDE-8086-9232937F9CC6",
+                        "OutputName": "Choose MIME-end"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              },
+              {
+                "WFItemType": 0,
+                "WFKey": {
+                  "Value": {
+                    "string": "X-Share-ID"
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                },
+                "WFValue": {
+                  "Value": {
+                    "string": "￼",
+                    "attachmentsByRange": {
+                      "{0, 1}": {
+                        "Type": "ActionOutput",
+                        "OutputUUID": "939AC78F-F16D-5154-95AD-4996106ABEAB",
+                        "OutputName": "Stable submission ID"
+                      }
+                    }
+                  },
+                  "WFSerializationType": "WFTextTokenString"
+                }
+              }
+            ]
+          },
+          "WFSerializationType": "WFDictionaryFieldValue"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getvalueforkey",
+      "WFWorkflowActionParameters": {
+        "UUID": "354003B0-803C-5E7D-BD6A-8C25FEF7C23A",
+        "CustomOutputName": "Server receipt file ID",
+        "WFInput": {
+          "Value": {
+            "Type": "ActionOutput",
+            "OutputUUID": "F88388D7-4B0D-5377-BA53-AA7C2C7DDA36",
+            "OutputName": "Upload original file"
+          },
+          "WFSerializationType": "WFTextTokenAttachment"
+        },
+        "WFDictionaryKey": "file_id",
+        "WFGetDictionaryValueType": "Value"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "670AE1F3-EE56-53BC-9CF2-EA61BA81B366",
+        "CustomOutputName": "No receipt",
+        "GroupingIdentifier": "147E58AD-8702-5924-8757-F7B3EB104579",
+        "WFControlFlowMode": 0,
+        "WFInput": {
+          "Type": "Variable",
+          "Variable": {
+            "Value": {
+              "Type": "ActionOutput",
+              "OutputUUID": "354003B0-803C-5E7D-BD6A-8C25FEF7C23A",
+              "OutputName": "Server receipt file ID"
+            },
+            "WFSerializationType": "WFTextTokenAttachment"
+          }
+        },
+        "WFCondition": 101
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "0E595FD8-E1ED-5420-A09C-49B3F1BEC6C7",
+        "CustomOutputName": "message-43",
+        "Text": {
+          "Value": {
+            "string": "No confirmed server receipt. Check pairing/type/limits/network. A timeout is unknown; retry the SAME supplied image so its hash ID is reused. Do not repeatedly resend a different representation."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.exit",
+      "WFWorkflowActionParameters": {
+        "UUID": "10FB6499-6AA2-5E9F-A359-7193763FCBF6",
+        "CustomOutputName": "stop-44"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.conditional",
+      "WFWorkflowActionParameters": {
+        "UUID": "3FBEDFAF-1843-524E-993A-5FDFA9B6C2E7",
+        "CustomOutputName": "No receipt-end",
+        "GroupingIdentifier": "147E58AD-8702-5924-8757-F7B3EB104579",
+        "WFControlFlowMode": 2
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "UUID": "D4D112D3-E0DE-5561-ABE7-197263E4280E",
+        "CustomOutputName": "Receipt explanation",
+        "Text": {
+          "Value": {
+            "string": "Server received the image. Check the original dot conversation for the original attachment and reply. Callback acceptance alone is not proof of a reply."
+          },
+          "WFSerializationType": "WFTextTokenString"
+        }
+      }
+    }
+  ],
+  "WFWorkflowClientVersion": "4018.0.4",
+  "WFWorkflowMinimumClientVersion": 900,
+  "WFWorkflowMinimumClientVersionString": "900",
+  "WFWorkflowHasShortcutInputVariables": true,
+  "WFWorkflowHasOutputFallback": false,
+  "WFWorkflowInputContentItemClasses": [
+    "WFImageContentItem",
+    "WFGenericFileContentItem"
+  ],
+  "WFWorkflowOutputContentItemClasses": [],
+  "WFWorkflowTypes": [
+    "ActionExtension"
+  ],
+  "WFQuickActionSurfaces": [],
+  "WFWorkflowImportQuestions": [
+    {
+      "ActionIndex": 25,
+      "Category": "Parameter",
+      "DefaultValue": "",
+      "ParameterKey": "WFTextActionText",
+      "Text": "Set your own nonsecret stable HTTPS origin once (for example https://inbox.example.com), no path or trailing slash. Do not enter any token. You can edit this Text action later if your address changes."
+    }
+  ],
+  "WFWorkflowIcon": {
+    "WFWorkflowIconGlyphNumber": 59511,
+    "WFWorkflowIconStartColor": 4282601983
+  }
+}

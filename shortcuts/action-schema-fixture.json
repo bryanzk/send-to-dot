@@ -1,0 +1,73 @@
+{
+  "source": "https://raw.githubusercontent.com/EachSheep/ShortcutsBench/master/data/all_api2parasummary.json",
+  "download_sha256": "309488b2d5a2d2f9311d37f102a684cc104b0c8d3b651d8e376d3687f024caea",
+  "summaries": {
+    "is.workflow.actions.alert": {
+      "WFAlertActionMessage": ""
+    },
+    "is.workflow.actions.ask": {
+      "WFInputType,WFAskActionPrompt": ""
+    },
+    "is.workflow.actions.comment": {
+      "WFCommentActionText": ""
+    },
+    "is.workflow.actions.conditional": {
+      "WFInput,WFCondition,WFNumberValue,WFAnotherNumber": "",
+      "WFInput,WFCondition,WFBoundedNumber": "",
+      "WFInput,WFCondition,WFLinkEnumeration": "",
+      "WFInput,WFCondition,WFConditionalActionString": "",
+      "WFInput,WFCondition,WFMeasurement": "",
+      "WFInput,WFCondition,WFBoundedNumber,WFAnotherBoundedNumber": "",
+      "WFInput,WFCondition,WFDate,WFAnotherDate": "",
+      "WFInput,WFCondition,WFDuration,WFAnotherDuration": "",
+      "WFInput,WFCondition,WFDuration": "",
+      "WFInput,WFCondition,WFMeasurement,WFAnotherMeasurement": "",
+      "WFInput,WFCondition,WFEnumeration": "",
+      "WFInput": "",
+      "WFInput,WFCondition,WFNumberValue": "",
+      "WFInput,WFCondition,WFNumericEnumeration": "",
+      "WFInput,WFCondition,WFDate": "",
+      "WFInput,WFCondition": ""
+    },
+    "is.workflow.actions.count": {
+      "WFCountType,Input": ""
+    },
+    "is.workflow.actions.downloadurl": {
+      "WFURL": ""
+    },
+    "is.workflow.actions.exit": {
+      "": ""
+    },
+    "is.workflow.actions.getitemfromlist": {
+      "WFItemSpecifier,WFItemIndex,WFInput": "",
+      "WFItemSpecifier,WFInput": "",
+      "WFItemSpecifier,WFItemRangeStart,WFItemRangeEnd,WFInput": ""
+    },
+    "is.workflow.actions.gettext": {
+      "": ""
+    },
+    "is.workflow.actions.getvalueforkey": {
+      "WFGetDictionaryValueType,WFInput": "",
+      "WFGetDictionaryValueType,WFDictionaryKey,WFInput": ""
+    },
+    "is.workflow.actions.hash": {
+      "WFHashType,WFInput": ""
+    },
+    "is.workflow.actions.previewdocument": {
+      "WFInput": ""
+    },
+    "is.workflow.actions.properties.files": {
+      "WFContentItemPropertyName,WFInput": ""
+    },
+    "is.workflow.actions.showresult": {
+      "Text": ""
+    },
+    "is.workflow.actions.text.match": {
+      "WFMatchTextPattern,text": ""
+    },
+    "is.workflow.actions.url": {
+      "WFURLActionURL": ""
+    }
+  },
+  "note": "Only technical action identifiers and parameter key sets are retained; descriptive summaries omitted. Source project: EachSheep/ShortcutsBench (Apache-2.0)."
+}

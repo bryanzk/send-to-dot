@@ -1,0 +1,17 @@
+node_modules/
+.venv/
+.secrets/
+state/
+*.sqlite*
+approved.config.json
+.env
+*.log
+*.zip
+*.tgz
+.DS_Store
+__pycache__/
+*.pyc
+.setup.lock
+
+.installer.lock
+installer.*.tmp

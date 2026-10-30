@@ -1,0 +1,32 @@
+{
+  "name": "send-to-dot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/test.mjs",
+    "start": "node launch.mjs approved.config.json",
+    "preflight": "node scripts/preflight.mjs",
+    "setup": "node scripts/setup.mjs",
+    "sample": "node scripts/sample-upload.mjs",
+    "install:plan": "node scripts/install.mjs plan",
+    "service:status": "node scripts/service.mjs status"
+  },
+  "engines": {
+    "node": ">=25.6.1"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/node": "2.1.2",
+    "@modelcontextprotocol/server": "2.4.0",
+    "standardwebhooks": "1.1.1"
+  },
+  "description": "Single-user PNG/JPEG inbox with MCP Events and Android share target",
+  "license": "MIT",
+  "author": "bryanzk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bryanzk/send-to-dot.git"
+  },
+  "homepage": "https://github.com/bryanzk/send-to-dot#readme"
+}

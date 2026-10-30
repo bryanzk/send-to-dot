@@ -1,0 +1,42 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,rmSync,readFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {DatabaseSync} from 'node:sqlite';import {readFileSync as read} from 'node:fs';
+import {Inbox} from './store.mjs';import {createApp} from './server.mjs';import {captionHeaders,normalizeCaption,captionDigest,submissionDigest} from './caption.mjs';
+const fixture='这张图显示什么？\n只做图片分析 🌟',image=read(new URL('./web/sample.png',import.meta.url));
+test('caption transport is strict canonical UTF8 Base64 and manual-only with bounded normalization',()=>{
+ const parsed=captionHeaders(new Headers({'X-Inbox-Caption':Buffer.from(' '+fixture+' ').toString('base64'),'X-Inbox-Caption-Source':'manual-entry'}));assert.equal(parsed.caption,fixture);assert.equal(parsed.source,'manual-entry');assert.deepEqual(captionHeaders(new Headers()),{caption:'',source:'none'});assert.deepEqual(captionHeaders(new Headers({'X-Inbox-Caption':'','X-Inbox-Caption-Source':'none'})),{caption:'',source:'none'});
+ for(const source of ['ocr','share-text','exif'])assert.throws(()=>captionHeaders(new Headers({'X-Inbox-Caption':Buffer.from(fixture).toString('base64'),'X-Inbox-Caption-Source':source})),/^Error: Invalid caption$/);
+ for(const value of ['YQ=','/w==','!!!!'])assert.throws(()=>captionHeaders(new Headers({'X-Inbox-Caption':value,'X-Inbox-Caption-Source':'manual-entry'})),/^Error: Invalid caption$/);
+ assert.throws(()=>captionHeaders(new Headers({'X-Inbox-Caption':Buffer.from(fixture).toString('base64')})),/^Error: Invalid caption$/);
+ for(const value of ['x'.repeat(501),' '.repeat(501),'a\x00b','a\x1bb','\ud800'])assert.throws(()=>normalizeCaption(value),/^Error: Invalid caption$/);
+ assert.equal(normalizeCaption(' \n\t '),'');assert.equal(normalizeCaption('🌟'.repeat(500)).length,1000);
+});
+test('encrypted caption is bound to image/event/owner and immutable with submission ID',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'dot-caption-')),path=join(dir,'private.sqlite'),box=new Inbox(path,Buffer.alloc(32,11));
+ try{box.grant('fixture-upload','owner','upload');box.grant('fixture-read','owner','read subscribe');box.grant('other-reader','other-owner','read');
+  const a=box.upload('fixture-upload','q_caption_bound_fixture_01',image,'image/png',{caption:fixture,source:'manual-entry'});assert.deepEqual(box.upload('fixture-upload','q_caption_bound_fixture_01',image,'image/png',{caption:' '+fixture+' ',source:'manual-entry'}),a);
+  assert.throws(()=>box.upload('fixture-upload','q_caption_bound_fixture_01',image,'image/png',{caption:'changed',source:'manual-entry'}),/Idempotency conflict/);
+  assert.throws(()=>box.upload('fixture-upload','q_caption_bound_fixture_01',image,'image/png'),/Invalid caption/);assert.throws(()=>box.upload('fixture-upload','bad_source_fixture_01',image,'image/png',{caption:fixture,source:'ocr'}),/Invalid caption/);
+  assert.throws(()=>box.upload('fixture-upload','webq_missing_header_fixture',image,'image/png'),/Invalid caption/);assert.throws(()=>box.upload('fixture-upload','legacy_id_cannot_drop_question',image,'image/png',{caption:fixture,source:'manual-entry'}),/Invalid caption/);
+  const m=box.read('fixture-read',a.file_id).submission;assert.equal(m.caption,fixture);assert.equal(m.file_id,a.file_id);assert.equal(m.eventId,a.eventId);assert.equal(m.caption_sha256,captionDigest(fixture));assert.equal(m.submission_sha256,submissionDigest(m.image_sha256,fixture));assert.equal(m.provenance.manual_entry_independently_verified,false);assert.throws(()=>box.read('other-reader',a.file_id),/Not found/);
+  assert.ok(!readFileSync(path).includes(Buffer.from(fixture)));const columns=box.db.prepare('PRAGMA table_info(images)').all().map(x=>x.name);assert.ok(!columns.includes('caption_sha256'));assert.ok(!columns.includes('submission_sha256'));
+  const b=box.upload('fixture-upload','q_caption_bound_fixture_02',image,'image/png',{caption:'different fixture',source:'manual-entry'});const cipher=box.db.prepare('SELECT caption FROM images WHERE id=?').get(a.file_id).caption;box.db.prepare('UPDATE images SET caption=? WHERE id=?').run(cipher,b.file_id);assert.throws(()=>box.read('fixture-read',b.file_id));
+ }finally{box.close();rmSync(dir,{recursive:true,force:true});}
+});
+test('old eight-column database migrates without losing legacy image or subscription',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'dot-legacy-caption-')),path=join(dir,'private.sqlite'),key=Buffer.alloc(32,21),sealer=new Inbox(':memory:',key);const encrypted=sealer.seal(image);sealer.close();
+ const db=new DatabaseSync(path);db.exec('CREATE TABLE images(id TEXT PRIMARY KEY,owner TEXT,idem TEXT,digest TEXT,body BLOB,mime TEXT,expires INTEGER,event TEXT,UNIQUE(owner,idem))');db.prepare('INSERT INTO images VALUES(?,?,?,?,?,?,?,?)').run('11111111-1111-4111-8111-111111111111','owner','legacy_fixture_id_01','legacy-digest',encrypted,'image/png',Date.now()+60000,'evt_legacy_fixture');db.close();
+ const box=new Inbox(path,key);try{box.grant('legacy-reader','owner','read');const result=box.read('legacy-reader','11111111-1111-4111-8111-111111111111');assert.deepEqual(result.bytes,image);assert.equal(result.submission.caption,'');assert.equal(result.submission.caption_source,'none');assert.equal(box.db.prepare('SELECT caption FROM images').get().caption,null);}finally{box.close();rmSync(dir,{recursive:true,force:true});}
+});
+test('actual SDK returns bound manual question only on authorized image read; event stays metadata-only',async()=>{
+ const box=new Inbox(':memory:',Buffer.alloc(32,31)),origin='https://caption.example.test',sent=[],audits=[];box.grant('phone','owner','upload');box.grant('reader','owner','read subscribe');
+ const app=createApp({origin,redirects:['https://chat.example.test/cb'],approvalSecret:'fixture-only-owner',audit:x=>audits.push(x)},{inbox:box,callbackVerifier:async()=>true,dispatcher:async(_url,message)=>{sent.push(JSON.parse(message.body));return {status:204};}});
+ const request=(path,init={})=>app.fetch(new Request(origin+path,init));
+ const rpc=async(method,params={})=>{const r=await request('/mcp',{method:'POST',headers:{Authorization:'Bearer reader','Content-Type':'application/json',Accept:'application/json, text/event-stream','Mcp-Method':method,'Mcp-Protocol-Version':'2026-07-28',...(method==='tools/call'?{'Mcp-Name':params.name}:{})},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params:{...params,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{},'io.modelcontextprotocol/clientInfo':{name:'caption-fixture',version:'1'}}}})});assert.equal(r.status,200);return (await r.json()).result;};
+ try{
+  await rpc('events/subscribe',{name:'file.created',arguments:{inbox_id:'personal'},delivery:{mode:'webhook',url:'https://callback.example.test',secret:'whsec_'+Buffer.alloc(32,1).toString('base64')}});
+  const upload=await request('/api/upload',{method:'POST',headers:{Authorization:'Bearer phone',Origin:origin,'Content-Type':'image/png','X-Share-ID':'q_sdk_caption_fixture_01','X-Inbox-Caption':Buffer.from(fixture).toString('base64'),'X-Inbox-Caption-Source':'manual-entry'},body:image});assert.equal(upload.status,201);const receipt=await upload.json();
+  await app.deliver();assert.deepEqual(sent[0].data,{inbox_id:'personal',file_id:receipt.file_id});assert.ok(!JSON.stringify(sent).includes(fixture));assert.ok(!JSON.stringify(audits).includes(fixture));
+  const got=await rpc('tools/call',{name:'get_image',arguments:{file_id:receipt.file_id}});assert.deepEqual(Buffer.from(got.content[0].data,'base64'),image);assert.equal(got.content[1].type,'text');const meta=JSON.parse(got.content[1].text);assert.equal(meta.caption,fixture);assert.equal(meta.file_id,receipt.file_id);assert.equal(meta.eventId,receipt.eventId);
+  const blank=box.upload('phone','sdk_legacy_fixture_02',image,'image/png');assert.equal((await rpc('tools/call',{name:'get_image',arguments:{file_id:blank.file_id}})).content.length,1);
+  const bad=await request('/api/upload',{method:'POST',headers:{Authorization:'Bearer phone',Origin:origin,'Content-Type':'image/png','X-Share-ID':'sdk_bad_caption_fixture','X-Inbox-Caption':Buffer.from('sensitive-marker').toString('base64'),'X-Inbox-Caption-Source':'ocr'},body:image});assert.equal(bad.status,400);assert.deepEqual(await bad.json(),{error:'Invalid caption'});
+ }finally{box.close();}
+});
