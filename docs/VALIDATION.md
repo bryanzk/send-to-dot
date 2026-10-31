@@ -1,3 +1,7 @@
+# 0.2.1 patch verification
+
+114 Node +122 Python checks passed. GitHub’s actual GFM renderer produced exact release-page hrefs in both README files, and the copyable prompt ends with that URL on a separate line. The prompt appears after one purpose sentence and before setup/features. New resolver tests cover explicit preview inclusion, publication time, draft exclusion, required exact-source assets and pagination. The public blank signed Shortcut input differs from the prior Chinese workflow only in its name; settings remain empty. The newly named asset has not been separately imported on an iPhone. Source release selection is not a claim of independent end-user installation. All previous latency/continuity limitations remain.
+
 # 0.2.0 local release candidate — current evidence
 
 This section supersedes pending statements in historical sections below. Final candidate and fresh extracted-package regression each passed 110 Node +119 Python checks (229 total); see [release candidate evidence](RELEASE_CANDIDATE.md).

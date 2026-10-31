@@ -2,19 +2,23 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**Share a photo from your phone and continue your existing dot conversation.** Add an optional question; dot posts the original image as an assistant attachment, then answers your question separately in context.
+**Share a photo and an optional question from your phone into your existing dot conversation.**
 
-I built this because sharing a photo to ChatGPT kept opening a new chat. Finding the original conversation and uploading the photo again interrupted what I was doing. Send to dot receives only photos you choose to share. It does not scan your gallery or impersonate your messages.
+## Install with your own dot
 
-## Start by asking your own dot
+Copy this whole message into the dot conversation you want to keep using:
 
-Send this to the dot conversation you want to keep using:
+```text
+Install the newest published Send to dot release from the repository below, including preview releases. Tell me which version you chose. Download that release and follow the INSTALL_FOR_DOT.md inside it, rather than installing the main branch. Check the files before running them. Use my own Mac, accounts and service, and connect it to this conversation. Do the steps you can safely complete; ask me when I must sign in, approve access, choose costs or use my phone. Do not use the author's accounts, quota or credentials.
 
-> Follow https://github.com/bryanzk/send-to-dot/blob/main/INSTALL_FOR_DOT.md to install Send to dot on my own Mac and connect it to this conversation. Check your actual tools and existing configuration first. Complete authorized steps yourself, and hand over when I must sign in, approve access or use my phone. Do not purchase resources or use the author's account, quota or credentials.
+https://github.com/bryanzk/send-to-dot/releases
+```
 
-Read the [agent installation guide](INSTALL_FOR_DOT.md). Your dot needs permission and tools to operate **your own Mac**. A paid ChatGPT subscription alone does not guarantee dot access, custom-app access, event tools or native attachment tools. Missing capabilities must be reported at the relevant step.
+[Open published versions](https://github.com/bryanzk/send-to-dot/releases). Preview versions are included because this project is still being tested. Your dot must check which version was published most recently; GitHub’s “latest” shortcut can omit previews. [Version selection details](docs/LATEST_RELEASE.md).
 
-This is an assisted installation entry, not a promise of zero-touch setup. You must provide a stable HTTPS address and complete your own ChatGPT authorization and phone steps. If you prefer help from a person, follow the [detailed setup guide](docs/QUICKSTART.md) or [Chinese beginner walkthrough](README.zh-CN.md).
+This is guided setup, not a one-click or unattended install. Your dot needs tools and permission to operate your own Mac. You still provide an always-online Mac and a stable secure address, and complete your own account approval and phone steps.
+
+I built this because sharing a photo to ChatGPT kept opening a new chat. Finding the original conversation and uploading the photo again interrupted what I was doing. Send to dot receives only photos you choose to share. It does not scan your gallery or impersonate your messages. Originals appear as assistant attachments; answers can follow separately.
 
 ## What you need
 
@@ -30,7 +34,7 @@ You pay for your own infrastructure and account usage. The core service does not
 1. Have dot follow the [installation guide](INSTALL_FOR_DOT.md), or prepare the service with the [manual guide](docs/QUICKSTART.md). Open your HTTPS address on your phone. **Continue only when the “Send to dot” page opens.**
 2. Connect your own ChatGPT custom app to `https://YOUR-ADDRESS/mcp` using OAuth. Complete the owner approval yourself. **Continue only when ChatGPT shows the app is connected.** Keep the owner code out of chat.
 3. In your existing dot conversation, ask it to connect the inbox, respond there and send each original as an assistant attachment. The [attachment guide](docs/ATTACHMENT_AUTOMATION.md) explains the required native tools. **A confirmed subscription and attachment setup are required; the request alone does not configure them.**
-4. Install and pair the Android web app, or add the [iPhone Shortcut](docs/IOS_V5_COPY.md). Use a phone upload code, never the owner code. The signed Chinese v5 template configures the address and upload-only code once, then reuses them. The code is visible Text in your private Shortcut and may iCloud-sync or travel with exports; review the storage warning before saving it.
+4. Install and pair the Android web app, or add the [iPhone Shortcut](docs/IOS_SETUP.md). Use a phone upload code, never the owner code. The signed Send to dot template configures the address and upload-only code once, then reuses them. The code is visible Text in your private Shortcut and may iCloud-sync or travel with exports; review the storage warning before saving it.
 5. Share your service’s `/sample.png` with a short question. **Success means the same dot conversation shows the answer and original image attachment.** A phone “sent” message only confirms inbox receipt.
 
 After this check, choose whether to send private photos. For everyday use: select one image, optionally write a question, send, then return to your dot.
@@ -43,7 +47,7 @@ Newly issued upload and ChatGPT access grants last **30 days by default** and ne
 
 Reading an image through the connected app does not itself display a native chat attachment. Your dot also needs supported tools to save the original privately and send it as an assistant attachment. Missing tools require a handoff. No undocumented ChatGPT API or author account is supplied.
 
-One real user environment completed Android and iPhone image-and-question sharing into the original dot conversation with assistant attachments. The Chinese v5 Shortcut was used in a recorded iPhone send; uninterrupted 30-day use and repeated real-device reuse without setup prompts remain unverified. The revised Android page also received narrow-screen browser checks. **An independent second user's installation and long-term operation remain unverified.** See [validation](docs/VALIDATION.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
+One real user environment completed Android and iPhone image-and-question sharing into the original dot conversation with assistant attachments. The Chinese Shortcut was used in a recorded iPhone send; uninterrupted 30-day use and repeated real-device reuse without setup prompts remain unverified. The revised Android page also received narrow-screen browser checks. **An independent second user's installation and long-term operation remain unverified.** See [validation](docs/VALIDATION.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
 
 ## Before sharing private images
 

@@ -1,13 +1,13 @@
-# iPhone v5 wording update
+# iPhone Shortcut setup
 
-The signed blank Chinese file is `shortcuts/Send-to-dot-v5-zh-CN.shortcut`. It appears as **Send to dot v5 中文** after adding. The English v5 source candidate remains unsigned. Existing signed v4 and installed shortcuts are unchanged.
+The current signed blank Chinese file is `shortcuts/Send-to-dot.shortcut`, also attached to the selected release as `Send-to-dot.shortcut`. It appears as **Send to dot** after adding. The English v5 source candidate remains unsigned. Existing signed v4 and installed shortcuts are unchanged.
 
 ## What to do
 
 1. Open the new file on iPhone and choose Add Shortcut. If it does not open in Shortcuts, save it in Files and open it there.
 2. Enter the same picture-receiving address used by v4. Stop after the website name; do not add `/mcp`, `/api/upload`, or a slash at the end.
 3. Enter the existing phone connection code yourself. The new copy cannot automatically inherit v4’s private settings. No replacement code is needed merely for this wording update.
-4. Keep v4 for now. In Photos/Files, select one JPG or PNG and share to **Send to dot v5 中文**. Choose image only or add your own question, then confirm sending.
+4. Keep v4 for now. In Photos/Files, select one JPG or PNG and share to **Send to dot**. Choose image only or add your own question, then confirm sending.
 5. “图片已提交” means submitted to the receiving address. Return to the original dot conversation and wait for the attachment and reply. It does not prove conversation delivery.
 
 The code remains visible when editing your configured shortcut, may copy through iCloud and is included if you share/export that configured copy. Keep it private. Its actual expiry is unchanged by importing or saving v5. Do not put codes in chat or send configured copies for signing.

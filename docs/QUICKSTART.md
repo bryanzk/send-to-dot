@@ -96,7 +96,7 @@ python3 show_pairing.py phone
 
 核对手机页面的目的地，将这个**仅上传码**输入手机配对框，再清除终端显示。不要使用 owner、OAuth read、OpenAI 或 Tunnel 凭据。配对界面会说明传输范围；只分享你主动选择的内容。
 
-iOS 使用 [首次保存码的v4指南](IOS_V4_SETUP.md)，其原生源码另见 [iOS README](../ios/README.md)。不要把 Safari 添加主屏当成 Android 同样的文件分享接收器；已提供签名 Shortcut 候选与 Mac 导入预览证据；已有单用户iPhone实际链路证据，其他用户仍需自己的真机验收；没有已签名原生 App。
+iOS 使用 [iPhone 首次设置指南](IOS_SETUP.md)，其原生源码另见 [iOS README](../ios/README.md)。不要把 Safari 添加主屏当成 Android 同样的文件分享接收器；已提供签名 Shortcut 候选与 Mac 导入预览证据；已有单用户iPhone实际链路证据，其他用户仍需自己的真机验收；没有已签名原生 App。
 
 ## 7. 原对话订阅与首次验收
 

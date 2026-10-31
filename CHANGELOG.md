@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+- Put ready-to-copy dot install instructions first in English and Chinese README, with the release URL on its own line to avoid Chinese punctuation entering the link.
+- Resolve the newest published non-draft release, explicitly including previews, instead of using main or GitHub’s stable-only latest shortcut. Verify the selected tag, assets and checksums before installation.
+- Publish the blank signed iPhone Shortcut as `Send-to-dot.shortcut`, with installed display name **Send to dot**. Functional actions and saved-code behavior are unchanged. Importing a new copy still requires your own settings.
+- Preserve v0.2.0 and its assets. No service, authorization or delivery-latency change is part of this patch.
+
 ## 0.2.0
 
 - Keep the Android send screen focused on one image, an optional question and Send; use plain-language state/error messages and avoid automatic resends.

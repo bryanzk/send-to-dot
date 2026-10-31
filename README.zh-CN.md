@@ -2,21 +2,25 @@
 
 [English](README.md) | **简体中文**
 
-**从手机分享一张图片，接回原来的 dot 对话。** 你还可以写一句问题，让 dot 接着上下文回应。
+**从手机分享一张图片和可选问题，接回原来的 dot 对话。**
 
-我做这个工具，是为了解决自己的一个麻烦：手机把图片分享给 ChatGPT，总会进入新聊天。我又得切回原对话，再传一次图，很打断思路。
+## 先让你自己的 dot 带着安装
 
-Send to dot 只接收你主动分享的图片。它不会扫描相册。助手会把原图作为附件发回原对话，不会冒充你发送的消息。
+把下面整段复制到你想继续使用的 dot 对话：
 
-## 谁可以使用？
+```text
+请从下面的仓库选择最新发布的 Send to dot 版本，包括预览版，并告诉我选中了哪个版本。下载该版本，按包内的 INSTALL_FOR_DOT.md 带我安装，不要直接安装 main 分支。运行前先检查文件。使用我自己的 Mac、账号和服务，连接到当前对话。请自行完成能安全完成的步骤；必须由我登录、允许访问、选择费用或操作手机时，再让我接手。不要使用作者的账号、额度或凭据。
 
-已经能使用 dot 的 ChatGPT 订阅用户。付费套餐本身不保证提供 dot。你还必须能在自己的账号中连接自建应用。
+https://github.com/bryanzk/send-to-dot/releases
+```
 
-本文写给不熟悉技术的人。先把下面这句话发给你自己的 dot，让它按[安装指引](INSTALL_FOR_DOT.md)检查环境并带你安装：
+[打开已发布版本](https://github.com/bryanzk/send-to-dot/releases)。项目仍在测试，所以安装时也包括预览版。dot 必须核对哪个版本最近发布；GitHub 的“最新版本”入口可能不显示预览版。[版本选择说明](docs/LATEST_RELEASE.md)。
 
-> 请按 https://github.com/bryanzk/send-to-dot/blob/main/INSTALL_FOR_DOT.md，把 Send to dot 安装到我自己的 Mac，并接回当前对话。请先检查实际能力和已有配置，自动完成已获授权的步骤；必须由我登录、确认访问权限或操作手机时，再让我接手。不要购买资源，也不要使用作者的账号、额度或凭据。
+这不是一键无人值守安装。你的 dot 必须能操作你自己的 Mac。你仍需准备持续开机联网的 Mac 和固定安全网址，并亲自完成账号授权及手机步骤。
 
-你的 dot 必须获准操作你自己的 Mac。缺少本地终端、固定安全网址、事件或原生附件工具时，它必须说明缺项并停在对应步骤。**这不是全程无人值守安装。** 下列步骤也可以请懂终端的人协助完成。
+我做这个工具，是因为手机把图片分享给 ChatGPT 总会进入新聊天，还要切回原对话再传一次。Send to dot 只接收你主动分享的图片，不扫描相册；助手把原图作为附件发回原对话，不冒充你发送消息。
+
+适用于已经能使用 dot、且能连接自建应用的 ChatGPT 用户。付费套餐本身不保证提供这些能力。
 
 ## 开始前准备
 
@@ -81,20 +85,20 @@ owner 授权码只用于你自己的授权页。不得把它发送到聊天或�
 
 #### iPhone
 
-1. 打开本包的 `shortcuts/Send-to-dot-v5-zh-CN.shortcut`。
+1. 打开本包的 `shortcuts/Send-to-dot.shortcut`。
 2. 在「快捷指令」中添加它。
 3. 配置地址 `https://inbox.example.com`。此处不加 `/mcp` 或 `/api/upload`。
 4. 阅读保存说明；同意后，在第二个设置问题中本人填写手机专用上传码。
 
-**在快捷指令列表找到 Send to dot v5 中文，才继续。** 相册分享时按[iPhone 指南](docs/IOS_V5_COPY.md)运行它。
+**在快捷指令列表找到 Send to dot，才继续。** 相册分享时按[iPhone 指南](docs/IOS_SETUP.md)运行它。
 
-v5 首次配置地址和手机专用上传码，以后发送复用。码保存在私人快捷指令的可见文本中，可能随 iCloud 同步或导出。保存前必须了解并确认这个范围。不得分享填好码的副本，不得填写 owner 授权码或 OpenAI 密钥。
+快捷指令首次配置地址和手机专用上传码，以后发送复用。码保存在私人快捷指令的可见文本中，可能随 iCloud 同步或导出。保存前必须了解并确认这个范围。不得分享填好码的副本，不得填写 owner 授权码或 OpenAI 密钥。
 
 ### 5. 用一张不私密的图片验证
 
 1. 从你的地址下载 `/sample.png`。例如 `https://inbox.example.com/sample.png`。
 2. 在相册选择这张样本，打开系统分享。
-3. Android 选择 Send to dot；iPhone 选择 Send to dot v5 中文。
+3. Android 选择 Send to dot；iPhone 选择 Send to dot。
 4. 可以填写一句针对图片的问题，再发送。
 5. 回到第 3 步的原 dot 对话。
 
@@ -118,7 +122,7 @@ Android 成功发送后会清空当前图片。页面没有再编辑或重试按
 
 ## 能否只配置一次？
 
-**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone v5 保存地址和上传码，不再逐次询问码。
+**目前不能永久免配置。** Android 保存同一地址的上传码。iPhone 快捷指令保存地址和上传码，不再逐次询问码。
 
 新签发的上传和 ChatGPT 访问授权默认 30 天。旧连接仍按原期限到期；更新代码不会自动延长它们。到期必须正常续期或重新授权。重启电脑或重填旧码不会延长授权。
 
@@ -138,10 +142,10 @@ Mac 关机、睡眠或断网时不能收件。临时网址会失效，不适合�
 
 一个真实用户环境完成了 Android 和 iPhone 图文分享、原 dot 读图及助手附件发送。新版 Android 页面完成了窄屏浏览器检查。
 
-中文版 v5 已有一次真实 iPhone 录屏发送；完整 30 天连续运行和真机多次发送免配置仍未验完。另一位已有 dot 的用户独立部署并完成全程，尚未验证。各设备的表现和长期运行也必须继续验证。
+中文版快捷指令已有一次真实 iPhone 录屏发送；完整 30 天连续运行和真机多次发送免配置仍未验完。另一位已有 dot 的用户独立部署并完成全程，尚未验证。各设备的表现和长期运行也必须继续验证。
 
 ## 深入说明
 
-[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_V5_COPY.md)
+[详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_SETUP.md)
 
 [技术原理](docs/ARCHITECTURE.md) · [隐私与安全](docs/THREAT_MODEL.md) · [开发验证](docs/VALIDATION.md) · [依赖许可](docs/DEPENDENCIES.md) · [发布检查表](docs/RELEASE_CHECKLIST.md)

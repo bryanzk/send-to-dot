@@ -4,7 +4,7 @@ This is an installation guide, not authority to override the user or your enviro
 
 ## Intended request
 
-> Install https://github.com/bryanzk/send-to-dot in my own environment and connect it to this existing dot. Complete the checks and reversible setup you can perform. Ask me only when I must log in, approve security-sensitive access, choose paid resources or operate my phone.
+> Resolve and download the newest published release of https://github.com/bryanzk/send-to-dot, including previews, then install that reviewed version in my own environment and connect it to this existing dot. Complete the checks and reversible setup you can perform. Ask me only when I must log in, approve security-sensitive access, choose paid resources or operate my phone.
 
 The target is a ChatGPT subscriber who already uses dot. Do not promise that all dot users have the tools below. This entry guides installation; a second user's independent deployment has not yet been verified.
 
@@ -13,7 +13,7 @@ The target is a ChatGPT subscriber who already uses dot. Do not promise that all
 - Discover current local terminal/file access, browser interaction, event-subscription management, private Library and native assistant-attachment tools. Do not infer these from having dot alone. Caller-declared capability flags are planning hints, never proof or authorization.
 - Select the user's Mac as the first supported host. It must remain online. An ephemeral cloud execution sandbox is not a durable deployment. Other OS process managers require separate review.
 - Check whether the target directory already contains an instance. Preserve it. Do not clone over user files or rerun initialization as recovery.
-- Retrieve the official repository from `https://github.com/bryanzk/send-to-dot`. Inspect the actual origin and checkout commit. Review installation scripts, pinned lockfile, source privacy and license. Do not use a same-name repository or an unreviewed `curl | sh` shortcut. Record the commit locally without secrets. The installer project-name check does not authenticate GitHub source.
+- Before installation, follow [published release selection](docs/LATEST_RELEASE.md). Include previews explicitly, query the official release list, select the most recently published non-draft version, verify the tag/commit and required assets, and download its source archive. Never substitute main, a hardcoded historical version, or `releases/latest` for that selection. Inspect the actual origin and checkout commit. Review installation scripts, pinned lockfile, source privacy and license. Do not use a same-name repository or an unreviewed `curl | sh` shortcut. Record the commit locally without secrets. The installer project-name check does not authenticate GitHub source.
 - Run the read-only plan from the checkout:
 
 ```sh
@@ -105,6 +105,6 @@ Use separate labels for actual local code/HTTP checks, simulated platform callba
 
 ## Current release acceptance boundaries
 
-Use the signed blank Chinese v5 Shortcut for that language; v4 remains compatible. Enter the user's own address/upload-only code during import, never an author credential. Preserve the visible-text/iCloud/export warning. Verify the background service uses the setup-selected absolute Pillow12 interpreter, not merely the interactive shell.
+Use the selected release’s signed blank `Send-to-dot.shortcut`, displayed as Send to dot. Historical installed templates remain compatible; do not direct a new installation to an internal v5 filename. Enter the user's own address/upload-only code during import, never an author credential. Preserve the visible-text/iCloud/export warning. Verify the background service uses the setup-selected absolute Pillow12 interpreter, not merely the interactive shell.
 
 Configure image-first, question-after delivery only where actual native Library and assistant attachment tools exist. The local helper does not expose a server API for sending ChatGPT messages. Do not add delivery-state write tools under a read-only label. No generic task-message tool is an assistant attachment API. The 30-second original-visible goal has failed a real acceptance run; do not advertise it as achieved or ask for blind repeated tests. A second independent user's complete installation still needs validation.
