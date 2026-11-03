@@ -39,11 +39,11 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
   const t0=Date.now();const image=sourceFor(p.file_id,p.event_id);
   if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow'});}
   const start=await run('start',p.file_id,p.event_id,{});
-  if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false});}
+  if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision,eventId:p.event_id});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false});}
   const source=attachmentSource(image,token,readCache);
   const prep=await run('prepare',p.file_id,p.event_id,{claim_id:start.claim_id,content:[text(source)]});
   if(prep.decision!=='save_original_once'){audit({event:'delivery.claim',outcome:'prepare_'+prep.decision});return result({type:'send-to-dot.claim',version:1,decision:'hold',reason:prep.reason??'prepare_failed',claimed:true,claim_id:start.claim_id,automatic_retry:false});}
-  audit({event:'delivery.claim',outcome:'claimed',ms:Date.now()-t0});
+  audit({event:'delivery.claim',outcome:'claimed',eventId:p.event_id,ms:Date.now()-t0});
   if(links){const link=links.issue(image.bytes,image.mime,{file_id:p.file_id,claim_id:start.claim_id,sha256:prep.sha256});
    return result({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,download_url:origin+'/api/original/'+link.token,download_expires_at:new Date(link.expires).toISOString(),single_use:true,original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:source.submission,
     next:'In ONE code execution: download download_url once (HTTP GET, no auth header) to a file, verify SHA256 equals original_sha256 and size equals original_bytes, save that file to the private Library once, send it once with library_file_ids, then call record_image_sent. The link works once and expires quickly; never share or print it. On any failure call mark_delivery_uncertain; never re-claim.'});}

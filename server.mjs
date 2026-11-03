@@ -76,7 +76,9 @@ export function createApp(config,{inbox=new Inbox(config.database,config.storage
    // Queue owner and expiry are checked by pending() immediately before each send.
    if(!inbox.pending().some(x=>x.event===q.event&&x.subscription===q.subscription))continue;
    const event={eventId:q.event,name:'file.created',timestamp:new Date(q.expires-3600000).toISOString(),data:{inbox_id:'personal',file_id:q.file_id},cursor:null};
-   try{const message=signedRequest({id:q.subscription,secret:q.secret},event.eventId,JSON.stringify(event),Math.floor(Date.now()/1000));const r=await dispatcher(q.url,message);inbox.acknowledge(q.event,q.subscription,r.status);}catch{inbox.acknowledge(q.event,q.subscription,503);}
+   const t0=Date.now();let status=503,error=null,body=null;
+   try{const message=signedRequest({id:q.subscription,secret:q.secret},event.eventId,JSON.stringify(event),Math.floor(Date.now()/1000));const r=await dispatcher(q.url,message);status=r.status;try{const j=JSON.parse(r.body);body=j&&typeof j==='object'?Object.keys(j).slice(0,8):typeof j;}catch{body=r.body?'text':'empty';}inbox.acknowledge(q.event,q.subscription,r.status);}catch(e){error=String(e?.message??e).slice(0,80);inbox.acknowledge(q.event,q.subscription,503);}
+   if(typeof config.audit==='function')config.audit({event:'event.dispatch',eventId:q.event,attempt:q.attempt,created_to_send_ms:t0-(q.expires-3600000),status,ms:Date.now()-t0,response_keys:body,error});
   }}finally{busy=false;}}
  return {fetch,inbox,deliver,cleanupReadCache:()=>readCache?.sweep()};
 }
