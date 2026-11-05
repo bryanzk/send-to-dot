@@ -34,9 +34,6 @@
       "APPROVAL_SECRET": {
         "description": "本人确认码 / owner code: choose 16+ characters. You enter it on /setup and when connecting ChatGPT. Never share it or use it as the phone code."
       },
-      "ORIGIN": {
-        "description": "Leave empty. The address is bound when you first open /setup on your workers.dev or custom domain."
-      },
       "REDIRECTS": {
         "description": "Keep the default ChatGPT OAuth redirect."
       },

@@ -12,7 +12,7 @@ preview_urls = false
 command = "node cloud/build-assets.mjs"
 
 [vars]
-ORIGIN = ""
+# ORIGIN is deliberately absent: the owner's first /setup binds the address.
 REDIRECTS = '["https://chatgpt.com/connector_platform_oauth_redirect"]'
 
 [[durable_objects.bindings]]

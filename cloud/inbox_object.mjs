@@ -33,7 +33,8 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
   // The public origin comes from ORIGIN, or is bound once by the owner's first /setup (one-click
   // deployments do not know their workers.dev address in advance). Until then only /setup answers.
   let app=null;
-  const origin=()=>env.ORIGIN||setting('origin');
+  // Only a real https origin counts as configured; an empty or placeholder value means "bind on /setup".
+  const origin=()=>(/^https:\/\/[^/]+$/.test(env.ORIGIN??'')?env.ORIGIN:null)||setting('origin');
   function ensureApp(){if(app)return app;const o=origin();if(!o)return null;
     app=createApp({origin:o,redirects:JSON.parse(env.REDIRECTS??'[]'),approvalSecret:env.APPROVAL_SECRET,
       dotNativeDelivery:true,originalDownloadLinks:true,dispatchOnUpload:true,audit,clock},
