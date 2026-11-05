@@ -13,12 +13,15 @@ const CHUNK=1024*1024;
 const same=(a,b)=>typeof a==='string'&&typeof b==='string'&&a.length===b.length&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
   const key=Buffer.from(env.STORAGE_KEY??'','base64');
-  const inbox=new InboxCore(new DOSql(sql),key,{clock,validate:validateImage,tx,maxBlob:CHUNK});
+  let audit=()=>{};
+  // Rejected images log only a structural reason code and the size, never content.
+  const validate=b=>{try{return validateImage(b);}catch(e){audit({event:'image.check',outcome:e.reason??'invalid',bytes:b?.length??0});throw e;}};
+  const inbox=new InboxCore(new DOSql(sql),key,{clock,validate,tx,maxBlob:CHUNK});
   const ledger=new SplitLedger(inbox,{clock:()=>clock()/1000});
   // Audit events (never tokens, links or captions) go to the Workers log and a 1000-entry table
   // that /admin/audit reads, so latency can be measured per event without log access.
   inbox.db.exec('CREATE TABLE IF NOT EXISTS audit_log(id INTEGER PRIMARY KEY AUTOINCREMENT,time INTEGER,entry TEXT)');
-  const audit=e=>{const t=clock(),line=JSON.stringify({time:new Date(t).toISOString(),...e});console.log(line);
+  audit=e=>{const t=clock(),line=JSON.stringify({time:new Date(t).toISOString(),...e});console.log(line);
     try{inbox.db.prepare('INSERT INTO audit_log(time,entry) VALUES(?,?)').run(t,line);inbox.db.prepare('DELETE FROM audit_log WHERE id<=(SELECT MAX(id) FROM audit_log)-1000').run();}catch{}};
   const app=createApp({origin:env.ORIGIN,redirects:JSON.parse(env.REDIRECTS??'[]'),approvalSecret:env.APPROVAL_SECRET,
     dotNativeDelivery:true,originalDownloadLinks:true,dispatchOnUpload:true,audit,clock},

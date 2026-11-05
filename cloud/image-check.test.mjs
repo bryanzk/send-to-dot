@@ -16,3 +16,11 @@ test('rejects what the Python decoder rejects: corrupt, truncated, wrong type, o
   for(const c of cases){assert.equal(js(c),null);assert.equal(pil(c),null);}
   const huge=Buffer.from(makePng(8));huge.writeUInt32BE(5000,16);huge.writeUInt32BE(5000,20);assert.equal(js(huge),null);
 });
+test('multi-picture (MPF / Ultra HDR) JPEG is accepted by its primary image; reasons are reported',()=>{
+  const j=jpeg();if(!j)return;
+  const mpf=Buffer.concat([Buffer.from([0xff,0xe2,0x00,0x0c]),Buffer.from('MPF\0'),Buffer.alloc(6)]);
+  const ultra=Buffer.concat([j.subarray(0,2),mpf,j.subarray(2),j]);
+  assert.equal(checkImage(ultra).mime,'image/jpeg');
+  try{checkImage(Buffer.from('GIF89a........'));assert.fail();}catch(e){assert.equal(e.reason,'format');}
+  try{checkImage(j.subarray(0,j.length-2));assert.fail();}catch(e){assert.equal(e.reason,'jpeg_no_end');}
+});
