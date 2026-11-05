@@ -14,6 +14,7 @@ const project=fileURLToPath(new URL('.',import.meta.url));
 if(!resolve(config.database).startsWith(resolve(project,'state')+sep))throw Error('Database must stay inside this project state directory');
 function secret(path){if(!resolve(path).startsWith(resolve(project,'.secrets')+sep))throw Error('Use only this private project secret directory');const s=lstatSync(path);if(!s.isFile()||s.isSymbolicLink()||s.uid!==process.getuid()||(s.mode&0o077))throw Error('Secrets must be owner-only regular files');return readFileSync(path,'utf8').trim();}
 config.storageKey=Buffer.from(secret(config.storageKeyFile),'base64');config.approvalSecret=secret(config.approvalSecretFile);
+if(config.r2CredentialsFile){const c=JSON.parse(secret(config.r2CredentialsFile));config.r2Credentials={accountId:c.account_id,bucket:c.bucket,accessKeyId:c.access_key_id,secretAccessKey:c.secret_access_key};}
 if(new URL(config.origin).protocol!=='https:'||new URL(config.origin).origin!==config.origin)throw Error('Exact approved HTTPS origin required');
 config.audit=event=>console.log(JSON.stringify({time:new Date().toISOString(),...event}));
 if(config.pythonExecutable)process.env.DOT_INBOX_PYTHON=config.pythonExecutable;
@@ -27,6 +28,6 @@ const server=http.createServer((req,res)=>{observeUpload(req,res,config.audit);i
  if(path==='/api/upload'||path==='/mcp'){try{app.inbox.auth(req.headers.authorization?.replace(/^Bearer /,''),path==='/mcp'?'read':'upload');}catch{res.writeHead(401,{'WWW-Authenticate':'Bearer resource_metadata=\"'+config.origin+'/.well-known/oauth-protected-resource\"'}).end();return;}}
  if(path==='/api/upload'&&req.headers.origin!==config.origin){res.writeHead(403).end();return;}serve(req,res);});
 server.listen(43187,'127.0.0.1',()=>console.log('Private inbox listening on approved loopback; no content logged'));
-const delivery=setInterval(()=>app.deliver().catch(()=>{}),5000);const cleanup=setInterval(()=>{app.inbox.sweep();app.cleanupReadCache();},30000);const watch=setInterval(()=>{try{app.watchUnclaimed?.();}catch{}},15000);
+const delivery=setInterval(()=>app.deliver().catch(()=>{}),5000);const cleanup=setInterval(()=>{app.inbox.sweep();app.cleanupReadCache();},30000);const watch=setInterval(()=>{try{app.watchUnclaimed?.();app.r2Sweep?.();}catch{}},15000);
 function stop(){clearInterval(delivery);clearInterval(cleanup);clearInterval(watch);server.closeAllConnections();server.close(()=>{app.inbox.close();process.exit(0);});}
 process.on('SIGINT',stop);process.on('SIGTERM',stop);
