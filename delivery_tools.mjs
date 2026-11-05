@@ -66,7 +66,15 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
 
  if(ledgerPath)server.registerTool('pending_deliveries',{description:'Read-only work list. Call at the start of every run (a merged trigger may not list its events) and again after finishing each item; keep going until pending is empty. kind=image: run claim_image_delivery for that file_id/event_id. kind=answer: run reserve_answer. held items need reconciliation: report them, never process them automatically. Never returns images, links or question text.',inputSchema:z.object({}).strict(),annotations:{readOnlyHint:true,openWorldHint:false}},()=>{inbox.auth(token,'read');const r=pendingDeliveries(inbox,ledgerPath);return result({type:'send-to-dot.pending',version:1,...r,server_time:new Date().toISOString()});});
 
- server.registerTool('claim_image_delivery',{description:'One-call claim for the original dot: checks the canonical delivery ledger (dedup/hold), and only when this event may be delivered returns the EXACT original image plus a claim_id. Next, in the same turn and without analysing the image: save these exact bytes to the private Library once, then send that Library file once in the original conversation, then call record_image_sent. decision skip/hold/answer_pending/too_large returns no image; never retry a hold.',inputSchema:z.object(ids).strict(),annotations:ro},async p=>{
+ server.registerTool('claim_image_delivery',{description:'One-call claim for the original dot: checks the canonical delivery ledger (dedup/hold), and only when this event may be delivered returns the EXACT original image plus a claim_id. Next, in the same turn and without analysing the image: save these exact bytes to the private Library once, then send that Library file once in the original conversation, then call record_image_sent. Call it WITHOUT arguments to claim the oldest pending image directly (no need to call pending_deliveries first); decision none_pending means the work list is empty. decision skip/hold/answer_pending/too_large returns no image; never retry a hold.',inputSchema:z.object({file_id:ids.file_id.optional(),event_id:ids.event_id.optional()}).strict(),annotations:ro},async q=>{
+  let p=q;
+  if(!q.file_id||!q.event_id){
+   if(q.file_id||q.event_id)return result({type:'send-to-dot.claim',version:1,decision:'hold',reason:'give_both_file_id_and_event_id_or_neither',claimed:false});
+   inbox.auth(token,'read');const r=ledgerPath?pendingDeliveries(inbox,ledgerPath):{ok:false,pending:[]};
+   const first=r.pending.find(x=>x.kind==='image');
+   if(!first)return result({type:'send-to-dot.claim',version:1,decision:r.ok?'none_pending':'hold',reason:r.ok?null:'ledger_unavailable',claimed:false,...next(null)});
+   p={file_id:first.file_id,event_id:first.event_id};
+  }
   const t0=Date.now();audit({event:'delivery.claim.start',eventId:p.event_id});const image=sourceFor(p.file_id,p.event_id);
   if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow',...next(p.file_id)});}
   const start=await run('start',p.file_id,p.event_id,{});

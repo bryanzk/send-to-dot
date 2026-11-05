@@ -69,3 +69,17 @@ test('uncertain records stay held after the inbox copy expires; finished or lega
  const r=pendingDeliveries(box,ledgerPath);
  assert.deepEqual(r.held,[{file_id:'gone-1',event_id:'evt_gone0001',source_expired:true,image_state:'creating_uncertain',answer_state:'not_requested'}]);assert.deepEqual(r.pending,[]);
 });
+test('claim without arguments picks the oldest pending image; empty list returns none_pending',async()=>{
+ const {registerDeliveryTools}=await import('./delivery_tools.mjs');const {z}=await import('zod');
+ const {box,ledgerPath,up}=await setup();
+ try{const a=await up(31),b=await up(32);
+  const tools={},starts=[];const server={registerTool:(n,_m,f)=>{tools[n]=f;}};
+  const run=async(act,f,e)=>{if(act==='start'){starts.push([f,e]);return {decision:'skip',reason:'send_accepted'};}return {decision:'hold'};};
+  registerDeliveryTools(server,{z,inbox:box,token:'readtok',readCache:null,run,ledgerPath});
+  const r=JSON.parse((await tools.claim_image_delivery({})).content[0].text);
+  assert.deepEqual(starts,[[a.file_id,a.eventId]]);assert.equal(r.decision,'skip');
+  const bad=JSON.parse((await tools.claim_image_delivery({file_id:a.file_id})).content[0].text);assert.equal(bad.reason,'give_both_file_id_and_event_id_or_neither');
+  writeFileSync(ledgerPath,JSON.stringify({items:[a,b].map(x=>({source_file_id:x.file_id,event_id:x.eventId,state:'send_accepted',image_state:'accepted',answer_state:'not_requested'}))}));
+  const none=JSON.parse((await tools.claim_image_delivery({})).content[0].text);assert.equal(none.decision,'none_pending');assert.equal(none.next_pending,null);
+ }finally{box.close();}
+});
