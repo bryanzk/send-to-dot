@@ -10,6 +10,7 @@ allowed = {
     'web': {'.js', '.html', '.css', '.webmanifest', '.png', '.svg'},
     'shortcuts': {'.md', '.py', '.json', '.shortcut'},
     'ios': {'.swift', '.plist', '.entitlements', '.md', '.pbxproj'},
+    'cloud': {'.mjs', '.toml'},
 }
 special = {'.gitignore', '.env.example', 'LICENSE'}
 blocked = {'.secrets', 'state', 'node_modules', '.venv', '__pycache__', '.git'}

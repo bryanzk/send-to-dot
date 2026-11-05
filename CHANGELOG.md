@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 (preview)
+
+- Optional Cloudflare deployment (`cloud/`, `docs/CLOUDFLARE_DEPLOYMENT.md`): the whole inbox runs on Workers + one Durable Object, so a Mac no longer has to stay on. Free plan; no R2 bucket needed.
+- Same code on both hosts: `app.mjs` and `store_core.mjs` hold the platform-neutral app and inbox; `server.mjs` and `store.mjs` keep the Mac defaults (file SQLite, Python decoder and ledger, Node webhook transport). The Mac install path and its prompt are unchanged.
+- Cloud delivery ledger ported from `split_delivery.py` with the same states, leases, dedup and hold rules; imported histories stay deduplicated.
+- Cloud image check: PNG/JPEG structure and checksums, size and pixel limits; multi-picture (Ultra HDR) JPEGs from current Android cameras accepted by their primary image, delivered unchanged. Rejections record a reason code.
+- Single-use original links stored in SQLite; signed `fetch` webhooks with alarm retries; owner admin tool `cloud/admin.mjs` (status, upload code, ledger import, audit timeline).
+- `claim_image_delivery` without arguments claims the oldest pending image (one fewer dot tool call); `reconcile_image_delivery`; uncertain records stay held after the inbox copy expires.
+- Measured on the author deployment: upload to accepted 43–56 s for test cards; real phone photos 28.6–35.1 s from event to accepted. Screen-recorded tap-to-visible timing for this release is not yet verified.
+
 ## 0.3.0 (preview)
 
 - Optional dot-native delivery (`dotNativeDelivery`, off by default): one-call claim against the canonical ledger, single-use 2-minute original download links, optional private Cloudflare R2 pre-staging with presigned GETs, batch receipt recording, `next_pending` draining and argument-free claims. See `docs/DOT_NATIVE_DELIVERY.md`.

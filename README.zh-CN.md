@@ -148,4 +148,4 @@ Mac 关机、睡眠或断网时不能收件。临时网址会失效，不适合�
 
 [详细部署](docs/QUICKSTART.md) · [配置保存与有效期](docs/CONFIGURATION.md) · [故障排除](docs/TROUBLESHOOTING.md) · [iPhone](docs/IOS_SETUP.md)
 
-[技术原理](docs/ARCHITECTURE.md) · [dot 自行转发原图（可选）](docs/DOT_NATIVE_DELIVERY.md) · [隐私与安全](docs/THREAT_MODEL.md) · [开发验证](docs/VALIDATION.md) · [依赖许可](docs/DEPENDENCIES.md) · [发布检查表](docs/RELEASE_CHECKLIST.md)
+[技术原理](docs/ARCHITECTURE.md) · [dot 自行转发原图（可选）](docs/DOT_NATIVE_DELIVERY.md) · [部署到 Cloudflare，不需要 Mac（可选）](docs/CLOUDFLARE_DEPLOYMENT.md) · [隐私与安全](docs/THREAT_MODEL.md) · [开发验证](docs/VALIDATION.md) · [依赖许可](docs/DEPENDENCIES.md) · [发布检查表](docs/RELEASE_CHECKLIST.md)
