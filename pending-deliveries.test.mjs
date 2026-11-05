@@ -43,3 +43,20 @@ test('pending_deliveries tool is listed only when a ledger path is configured',a
   assert.ok((await r.text()).includes('"pending_deliveries"'));
  }finally{box.close();}
 });
+test('record_image_sent and claim results carry the next pending item',async()=>{
+ const {registerDeliveryTools}=await import('./delivery_tools.mjs');const {z}=await import('zod');
+ const {box,ledgerPath,up}=await setup();
+ try{const a=await up(21),b=await up(22);
+  writeFileSync(ledgerPath,JSON.stringify({items:[{source_file_id:a.file_id,event_id:a.eventId,state:'send_accepted',image_state:'accepted',answer_state:'not_requested'}]}));
+  const tools={};const server={registerTool:(n,_m,f)=>{tools[n]=f;}};
+  const run=async act=>act==='saved-reserve'?{decision:'send_image_once'}:act==='image-accepted'?{decision:'not_requested',image_send_accepted:true}:act==='cleanup-staged'?{staging_cleanup:'done'}:act==='start'?{decision:'skip',reason:'send_accepted'}:{decision:'hold'};
+  registerDeliveryTools(server,{z,inbox:box,token:'readtok',readCache:null,run,ledgerPath});
+  const rec=JSON.parse((await tools.record_image_sent({file_id:a.file_id,event_id:a.eventId,claim_id:'0b7f4c1a-2d3e-4f50-8a6b-7c8d9e0f1a2b',library_file_id:'libfile_x',library_native_file_id:'file_x',library_version:0,message_id:'m1',accepted_at:'2026-11-05T01:00:00Z'})).content[0].text);
+  assert.equal(rec.recorded,true);assert.deepEqual(rec.next_pending,{file_id:b.file_id,event_id:b.eventId,kind:'image'});assert.equal(rec.pending_count,1);
+  const sk=JSON.parse((await tools.claim_image_delivery({file_id:a.file_id,event_id:a.eventId})).content[0].text);
+  assert.equal(sk.decision,'skip');assert.equal(sk.next_pending.file_id,b.file_id);
+  writeFileSync(ledgerPath,JSON.stringify({items:[{source_file_id:a.file_id,event_id:a.eventId,state:'send_accepted',image_state:'accepted',answer_state:'not_requested'},{source_file_id:b.file_id,event_id:b.eventId,state:'send_accepted',image_state:'accepted',answer_state:'not_requested'}]}));
+  const done=JSON.parse((await tools.record_image_sent({file_id:b.file_id,event_id:b.eventId,claim_id:'0b7f4c1a-2d3e-4f50-8a6b-7c8d9e0f1a2b',library_file_id:'libfile_y',library_native_file_id:'file_y',library_version:0,message_id:'m2',accepted_at:'2026-11-05T01:00:01Z'})).content[0].text);
+  assert.equal(done.next_pending,null);assert.equal(done.pending_count,0);
+ }finally{box.close();}
+});

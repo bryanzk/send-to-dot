@@ -57,6 +57,7 @@ const result=obj=>({content:[text(obj)]});
 
 export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledgerRunner(),inlineLimit=INLINE_ORIGINAL_LIMIT,audit=()=>{},links=null,origin=null,ledgerPath=null}){
  const ids={file_id:z.string().uuid(),event_id:z.string().regex(/^evt_[A-Za-z0-9_-]{8,100}$/)};
+ const next=(exclude)=>{if(!ledgerPath)return {};const r=pendingDeliveries(inbox,ledgerPath);if(!r.ok)return {next_pending:null,pending_count:null};const rest=r.pending.filter(x=>x.file_id!==exclude);return {next_pending:rest[0]?{file_id:rest[0].file_id,event_id:rest[0].event_id,kind:rest[0].kind}:null,pending_count:rest.length,held_count:r.held.length};};
  const ro={readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false};
  const sourceFor=(fileId,eventId)=>{const image=inbox.read(token,fileId);if(image.source?.event_id!==eventId)throw Error('Event identity mismatch');return image;};
 
@@ -64,12 +65,12 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
 
  server.registerTool('claim_image_delivery',{description:'One-call claim for the original dot: checks the canonical delivery ledger (dedup/hold), and only when this event may be delivered returns the EXACT original image plus a claim_id. Next, in the same turn and without analysing the image: save these exact bytes to the private Library once, then send that Library file once in the original conversation, then call record_image_sent. decision skip/hold/answer_pending/too_large returns no image; never retry a hold.',inputSchema:z.object(ids).strict(),annotations:ro},async p=>{
   const t0=Date.now();audit({event:'delivery.claim.start',eventId:p.event_id});const image=sourceFor(p.file_id,p.event_id);
-  if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow'});}
+  if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow',...next(p.file_id)});}
   const start=await run('start',p.file_id,p.event_id,{});
-  if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision,eventId:p.event_id});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false});}
+  if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision,eventId:p.event_id});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false,...next(p.file_id)});}
   const source=attachmentSource(image,token,readCache);
   const prep=await run('prepare',p.file_id,p.event_id,{claim_id:start.claim_id,content:[text(source)]});
-  if(prep.decision!=='save_original_once'){audit({event:'delivery.claim',outcome:'prepare_'+prep.decision});return result({type:'send-to-dot.claim',version:1,decision:'hold',reason:prep.reason??'prepare_failed',claimed:true,claim_id:start.claim_id,automatic_retry:false});}
+  if(prep.decision!=='save_original_once'){audit({event:'delivery.claim',outcome:'prepare_'+prep.decision});return result({type:'send-to-dot.claim',version:1,decision:'hold',reason:prep.reason??'prepare_failed',claimed:true,claim_id:start.claim_id,automatic_retry:false,...next(p.file_id)});}
   audit({event:'delivery.claim',outcome:'claimed',eventId:p.event_id,ms:Date.now()-t0});
   if(links){const link=links.issue(image.bytes,image.mime,{file_id:p.file_id,claim_id:start.claim_id,sha256:prep.sha256});
    return result({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,download_url:origin+'/api/original/'+link.token,download_expires_at:new Date(link.expires).toISOString(),single_use:true,original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:source.submission,
@@ -78,13 +79,13 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
    next:'Write the image block bytes to a file, verify SHA256 equals original_sha256, save to Library once, send once with library_file_ids, then record_image_sent. If anything is uncertain call mark_delivery_uncertain; never re-save or re-send.'})]};
  });
 
- server.registerTool('record_image_sent',{description:'Record the actual Library receipt and the actual original-conversation message receipt for a claimed image (after sending). Records only; sends nothing.',inputSchema:z.object({...ids,claim_id:z.string().uuid(),library_file_id:z.string().regex(/^libfile_[A-Za-z0-9_-]+$/),library_native_file_id:z.string().regex(/^file_[A-Za-z0-9_-]+$/),library_version:z.number().int().min(0),message_id:z.string().min(1).max(200),accepted_at:z.string().min(10).max(64)}).strict(),annotations:ro},async p=>{
+ server.registerTool('record_image_sent',{description:'Record the actual Library receipt and the actual original-conversation message receipt for a claimed image (after sending). Records only; sends nothing. The result carries next_pending: claim that item next without calling pending_deliveries again; when next_pending is null the work list is empty.',inputSchema:z.object({...ids,claim_id:z.string().uuid(),library_file_id:z.string().regex(/^libfile_[A-Za-z0-9_-]+$/),library_native_file_id:z.string().regex(/^file_[A-Za-z0-9_-]+$/),library_version:z.number().int().min(0),message_id:z.string().min(1).max(200),accepted_at:z.string().min(10).max(64)}).strict(),annotations:ro},async p=>{
   const saved=await run('saved-reserve',p.file_id,p.event_id,{claim_id:p.claim_id,library_receipt:{library_file_id:p.library_file_id,file_id:p.library_native_file_id,version:p.library_version}});
   if(saved.decision!=='send_image_once')return result({type:'send-to-dot.record',version:1,recorded:false,step:'library',decision:saved.decision,reason:saved.reason??null});
   const acc=await run('image-accepted',p.file_id,p.event_id,{native_receipt:{message_id:p.message_id,accepted_at:p.accepted_at}});
   const cleaned=await run('cleanup-staged',p.file_id,p.event_id,{claim_id:p.claim_id});
   audit({event:'delivery.image_recorded',outcome:acc.image_send_accepted?'ok':'failed'});
-  return result({type:'send-to-dot.record',version:1,recorded:acc.image_send_accepted===true,decision:acc.decision,staging_cleanup:cleaned.staging_cleanup??'failed',user_visible_confirmed:false});
+  return result({type:'send-to-dot.record',version:1,recorded:acc.image_send_accepted===true,decision:acc.decision,staging_cleanup:cleaned.staging_cleanup??'failed',user_visible_confirmed:false,...next(p.file_id)});
  });
 
  server.registerTool('reserve_answer',{description:'Reserve the single answer message for an image whose image send is already recorded. Returns send_answer_once with the verified question, or skip/hold. Sends nothing.',inputSchema:z.object(ids).strict(),annotations:ro},async p=>{
@@ -96,12 +97,12 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
  server.registerTool('record_answer_sent',{description:'Record the actual message receipt of the answer reserved with reserve_answer. Records only.',inputSchema:z.object({...ids,message_id:z.string().min(1).max(200),accepted_at:z.string().min(10).max(64)}).strict(),annotations:ro},async p=>{
   const image=sourceFor(p.file_id,p.event_id);const s=image.submission;
   const r=await run('answer-accepted',p.file_id,p.event_id,{native_receipt:{message_id:p.message_id,accepted_at:p.accepted_at},caption_sha256:s.caption_sha256,submission_sha256:s.submission_sha256,question_response_included:true});
-  return result({type:'send-to-dot.record',version:1,recorded:r.decision!=='hold'&&r.exit===0,decision:r.decision??null});
+  return result({type:'send-to-dot.record',version:1,recorded:r.decision!=='hold'&&r.exit===0,decision:r.decision??null,...next(p.file_id)});
  });
 
  server.registerTool('mark_delivery_uncertain',{description:'Mark the image or answer send as uncertain (timeout/unknown outcome). The record then holds until the real conversation is checked; nothing is retried automatically.',inputSchema:z.object({...ids,phase:z.enum(['image','answer'])}).strict(),annotations:ro},async p=>{
   inbox.auth(token,'read');const r=await run('uncertain',p.file_id,p.event_id,{phase:p.phase});
-  audit({event:'delivery.uncertain',outcome:p.phase});return result({type:'send-to-dot.record',version:1,decision:r.decision??'hold',automatic_retry:false});
+  audit({event:'delivery.uncertain',outcome:p.phase});return result({type:'send-to-dot.record',version:1,decision:r.decision??'hold',automatic_retry:false,...next(p.file_id)});
  });
 }
 
