@@ -71,6 +71,8 @@ test('one-click deployment: no ORIGIN or STORAGE_KEY; owner /setup binds the ori
   const post=(code,origin=o)=>go('/setup',{method:'POST',headers:{Origin:origin,'Content-Type':'application/x-www-form-urlencoded'},body:'owner='+encodeURIComponent(code)});
   assert.match(await (await post('wrong')).text(),/不对/);assert.equal((await go('/mcp',{method:'POST'})).status,503);
   assert.equal((await post('owner-choice','https://evil.example')).status,403);
+  assert.equal((await go('/setup',{method:'POST',headers:{Origin:'null','Sec-Fetch-Site':'cross-site','Content-Type':'application/x-www-form-urlencoded'},body:'owner=owner-choice'})).status,403);
+  assert.equal((await go('/setup',{method:'POST',headers:{Origin:'null','Sec-Fetch-Site':'same-origin','Content-Type':'application/x-www-form-urlencoded'},body:'owner=wrong'})).status,200);
   const html=await (await post('owner-choice')).text();const code=html.match(/<code>([A-Za-z0-9_-]{32})<\/code>/)[1];
   assert.ok(html.includes(o+'/mcp'));
   const up=await go('/api/upload',{method:'POST',headers:{Authorization:'Bearer '+code,Origin:o,'Content-Type':'image/png','X-Share-ID':'oneclickfixture01'},body:makePng(16)});assert.equal(up.status,201);

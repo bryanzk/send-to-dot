@@ -44,7 +44,7 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
   const ownerOK=v=>!!env.APPROVAL_SECRET&&same(v??'',env.APPROVAL_SECRET);
   let tries=0,minute=0;
   const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const page=(body,status=200)=>new Response(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Send to dot 设置</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:640px;margin:32px auto;padding:0 16px;color:#1f2937;background:#f8fafc}code,input{font:15px ui-monospace,monospace}code{background:#e5e7eb;padding:2px 6px;border-radius:4px;word-break:break-all}input{width:100%;padding:10px;box-sizing:border-box;margin:8px 0}button{padding:10px 16px;font-size:16px}li{margin:6px 0}</style><h1>Send to dot 设置</h1>${body}</html>`,{status,headers:{'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
+  const page=(body,status=200)=>new Response(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Send to dot 设置</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:640px;margin:32px auto;padding:0 16px;color:#1f2937;background:#f8fafc}code,input{font:15px ui-monospace,monospace}code{background:#e5e7eb;padding:2px 6px;border-radius:4px;word-break:break-all}input{width:100%;padding:10px;box-sizing:border-box;margin:8px 0}button{padding:10px 16px;font-size:16px}li{margin:6px 0}</style><h1>Send to dot 设置</h1>${body}</html>`,{status,headers:{'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
   const form=msg=>page(`${msg?`<p><strong>${esc(msg)}</strong></p>`:''}<p>输入部署时设置的<strong>本人确认码</strong>，生成一个手机连接码。连接码只显示一次，30 天有效，只能上传图片，不能查看图片。</p><form method="post" action="/setup"><label>本人确认码<input name="owner" type="password" required autocomplete="off"></label><button>生成手机连接码</button></form>`);
   // Owner setup page: binds the origin on first use and issues phone upload codes (shown once).
   async function setup(request){
@@ -52,7 +52,10 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
     if(!env.APPROVAL_SECRET)return page('<p>还没有设置本人确认码（APPROVAL_SECRET）。请在 Cloudflare 的 Worker 设置里添加这个密钥后再打开本页。</p>',503);
     if(request.method==='GET')return form('');
     if(request.method!=='POST')return page('<p>不支持。</p>',405);
-    if(request.headers.get('origin')!==u.origin)return page('<p>请从本页提交。</p>',403);
+    // Same-origin form posts only. Some browsers send Origin: null for form navigations; then rely
+    // on Sec-Fetch-Site, which a cross-site page cannot forge.
+    const og=request.headers.get('origin'),site=request.headers.get('sec-fetch-site');
+    if(!(og===u.origin||((og===null||og==='null')&&site==='same-origin')))return page('<p>请从本页提交。</p>',403);
     const m=Math.floor(clock()/60000);if(m!==minute){minute=m;tries=0;}if(++tries>10)return page('<p>尝试太多次，请一分钟后再试。</p>',429);
     const body=new URLSearchParams(await request.text());
     if(!ownerOK(body.get('owner'))){audit({event:'setup.owner',outcome:'rejected'});return form('本人确认码不对。');}
