@@ -51,3 +51,14 @@ test('embedded web assets match web/ (rerun node cloud/build-assets.mjs after ch
   const {webFile}=await import('./web_assets.mjs');const {readFileSync}=await import('node:fs');
   for(const n of ['index.html','app.js','db.js','sw.js','style.css','manifest.webmanifest','icon-192.png','icon-512.png','sample.png'])assert.ok(webFile(n).equals(readFileSync(new URL('../web/'+n,import.meta.url))),n);
 });
+test('admin audit lists dispatch, claim and record events plus ledger receipts, without secrets',async()=>{
+  const {box,upload,rpc,tool}=setup();
+  await rpc('events/subscribe',{name:'file.created',arguments:{inbox_id:'personal'},delivery:{mode:'webhook',url:'https://callback.example.test/hook',secret:'whsec_'+Buffer.alloc(32,1).toString('base64')}});
+  const {file_id,eventId}=await (await upload(makePng(20),'cloudfixture_0009')).json();await box.tick();
+  const c=await tool('claim_image_delivery',{});
+  await tool('record_images_sent',{items:[{file_id,event_id:eventId,claim_id:c.claim_id,library_file_id:'libfile_b',library_native_file_id:'file_b',library_version:0,message_id:'msg_b',accepted_at:'2026-11-05T12:00:00Z'}]});
+  const r=await box.admin(new Request('https://inbox.example.test/admin/audit',{headers:{Authorization:'Bearer admin-fixture'}}));const j=await r.json();
+  const names=j.entries.map(e=>e.event);for(const n of ['event.dispatch','delivery.claim','delivery.image_recorded'])assert.ok(names.includes(n),n);
+  assert.equal(j.items.at(-1).accepted_at,'2026-11-05T12:00:00Z');
+  assert.doesNotMatch(JSON.stringify(j),/reader-fixture|phone-code-fixture|whsec_|\/api\/original\//);
+});

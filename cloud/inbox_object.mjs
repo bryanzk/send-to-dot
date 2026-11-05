@@ -15,7 +15,11 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
   const key=Buffer.from(env.STORAGE_KEY??'','base64');
   const inbox=new InboxCore(new DOSql(sql),key,{clock,validate:validateImage,tx,maxBlob:CHUNK});
   const ledger=new SplitLedger(inbox,{clock:()=>clock()/1000});
-  const audit=e=>console.log(JSON.stringify({time:new Date(clock()).toISOString(),...e}));
+  // Audit events (never tokens, links or captions) go to the Workers log and a 1000-entry table
+  // that /admin/audit reads, so latency can be measured per event without log access.
+  inbox.db.exec('CREATE TABLE IF NOT EXISTS audit_log(id INTEGER PRIMARY KEY AUTOINCREMENT,time INTEGER,entry TEXT)');
+  const audit=e=>{const t=clock(),line=JSON.stringify({time:new Date(t).toISOString(),...e});console.log(line);
+    try{inbox.db.prepare('INSERT INTO audit_log(time,entry) VALUES(?,?)').run(t,line);inbox.db.prepare('DELETE FROM audit_log WHERE id<=(SELECT MAX(id) FROM audit_log)-1000').run();}catch{}};
   const app=createApp({origin:env.ORIGIN,redirects:JSON.parse(env.REDIRECTS??'[]'),approvalSecret:env.APPROVAL_SECRET,
     dotNativeDelivery:true,originalDownloadLinks:true,dispatchOnUpload:true,audit,clock},
     {inbox,callbackVerifier:deps.callbackVerifier??verifyCallback,dispatcher:deps.dispatcher??postSigned,webFile,
@@ -32,6 +36,10 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
       const r=ledger.importItems(body.ledger??[]);audit({event:'admin.import',tokens,ledger:r.imported});
       return Response.json({tokens,ledger:r.imported});
     }
+    if(u.pathname==='/admin/audit'&&request.method==='GET'){const since=Number(u.searchParams.get('since')??0)||0;
+      const entries=inbox.db.prepare('SELECT entry FROM audit_log WHERE time>=? ORDER BY id LIMIT 1000').all(since).map(r=>JSON.parse(r.entry));
+      const items=ledger.items().filter(x=>x.image_send_receipt||x.image_state).slice(-50).map(x=>({file_id:x.source_file_id,event_id:x.event_id??null,state:x.state,image_state:x.image_state??null,answer_state:x.answer_state??null,accepted_at:x.image_send_receipt?.accepted_at??null}));
+      return Response.json({entries,items});}
     if(u.pathname==='/admin/status'&&request.method==='GET'){const n=q=>inbox.db.prepare(q).get().n;
       return Response.json({images:n('SELECT count(*) n FROM images'),ledger:n('SELECT count(*) n FROM ledger'),upload_codes:n("SELECT count(*) n FROM tokens WHERE scope='upload'"),read_grants:n("SELECT count(*) n FROM tokens WHERE scope LIKE '%read%'"),subscriptions:n('SELECT count(*) n FROM subscriptions'),queue_pending:n("SELECT count(*) n FROM queue WHERE status='pending'")});}
     return Response.json({error:'Not found'},{status:404});
