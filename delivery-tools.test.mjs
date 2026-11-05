@@ -55,3 +55,14 @@ test('answer reservation passes the bound submission and returns the caption onl
 test('uncertain is recorded as hold with no automatic retry',async()=>{
  const {tools}=setup({runs:{uncertain:{decision:'hold',reason:'image_posting_uncertain'}}});const r=parse(await tools.mark_delivery_uncertain({file_id:FILE,event_id:EVT,phase:'image'}));assert.equal(r.decision,'hold');assert.equal(r.automatic_retry,false);
 });
+test('reconcile sent records real receipts, cleans staging and never sends',async()=>{
+ const {tools,calls}=setup({runs:{reconcile:{decision:'not_requested',image_send_accepted:true,claim_id:CLAIM},'cleanup-staged':{staging_cleanup:'done'}}});
+ const r=parse(await tools.reconcile_image_delivery({file_id:FILE,event_id:EVT,outcome:'sent',outcome_verified:true,library_file_id:'libfile_x',library_native_file_id:'file_x',library_version:0,message_id:'m1',accepted_at:'2026-11-05T02:49:43Z'}));
+ assert.equal(r.automatic_retry,false);assert.equal(r.staging_cleanup,'done');assert.deepEqual(calls.map(c=>c.action),['reconcile','cleanup-staged']);
+ assert.deepEqual(calls[0].payload.library_receipt,{library_file_id:'libfile_x',file_id:'file_x',version:0});assert.equal(calls[0].payload.outcome_verified,true);assert.equal(calls[1].payload.claim_id,CLAIM);
+});
+test('reconcile not_created only makes the item reclaimable',async()=>{
+ const {tools,calls}=setup({runs:{reconcile:{decision:'reclaimable',staging_cleanup:'done'}}});
+ const r=parse(await tools.reconcile_image_delivery({file_id:FILE,event_id:EVT,outcome:'not_created',outcome_verified:true}));
+ assert.equal(r.decision,'reclaimable');assert.deepEqual(calls.map(c=>c.action),['reconcile']);assert.equal(calls[0].payload.library_receipt,null);
+});

@@ -109,6 +109,27 @@ class SplitDelivery:
             if i['answer_state']!='posting':raise ValueError('Answer not reserved or uncertain')
             i.update(answer_state='accepted',answer_send_receipt=r,question_response_included=True,state='send_accepted',send_receipt=r['message_id'],send_accepted_at=r['accepted_at'],answer_lease_until=0,user_visibility_confirmed=False)
             return {'decision':'complete','image_send_accepted':True,'answer_send_accepted':True,'user_visible_confirmed':False}
+    def reconcile_image(self,file_id,event_id,outcome,*,outcome_verified,library=None,native_receipt=None):
+        # Resolve an image held as *_uncertain ONLY from a checked real outcome. Never retries anything itself.
+        if outcome_verified is not True:raise ValueError('Check the real Library and conversation first')
+        if outcome not in ('sent','not_created'):raise ValueError('Select sent or not_created')
+        with self.ledger.transaction() as data:
+            i=self._item(data,file_id,event_id)
+            if not i or i.get('delivery_mode')!='image_then_answer'or i['image_state']not in ('creating_uncertain','posting_uncertain'):raise ValueError('Only an uncertain image can be reconciled')
+            if outcome=='not_created':
+                if i['image_state']!='creating_uncertain'or library is not None or native_receipt is not None or i.get('library_file_id'):raise ValueError('not_created only applies before any Library save')
+                old=i['claim_id'];i.update(image_state='claimed',lease_until=0,reconciled='not_created');i.pop('staged_source',None)
+                return {'decision':'reclaimable','previous_claim_id':old,'automatic_retry':False}
+            r=receipt(native_receipt)
+            if i.get('library_file_id'):
+                if library is not None and any(i.get(k)!=library.get(k)for k in ('library_file_id','file_id','version')):raise ValueError('Conflicting Library receipt')
+            else:
+                if not isinstance(library,dict)or set(library)!={'library_file_id','file_id','version'}:raise ValueError('Actual Library receipt required')
+                if not re.fullmatch(r'libfile_[A-Za-z0-9_-]+',library['library_file_id'])or not re.fullmatch(r'file_[A-Za-z0-9_-]+',library['file_id'])or type(library['version'])is not int or library['version']<0:raise ValueError('Invalid Library receipt')
+                i.update(**library)
+            i.update(image_state='accepted',image_send_receipt=r,lease_until=0,user_visibility_confirmed=False,reconciled='sent')
+            if i['answer_state']=='not_requested':i.update(state='send_accepted',send_receipt=r['message_id'],send_accepted_at=r['accepted_at'])
+            return {'decision':'answer_pending'if i['answer_state']=='pending'else i['answer_state'],'image_send_accepted':True,'reconciled':True,'claim_id':i['claim_id'],'user_visible_confirmed':False}
     def uncertain(self,file_id,event_id,phase):
         if phase not in ('image','answer'):raise ValueError('Select image or answer phase')
         with self.ledger.transaction() as data:

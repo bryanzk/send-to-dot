@@ -58,6 +58,25 @@ class SplitTest(unittest.TestCase):
  def test_unknown_image_or_answer_outcomes_never_blind_retry(self):
   self.start_prepare();self.saved();self.flow.uncertain(FILE,EVENT,'image');self.now+=10000;self.assertEqual(self.flow.start(FILE,EVENT)['reason'],'posting_uncertain')
   with self.assertRaises(ValueError):self.image()
+ def test_reconcile_requires_verified_outcome_and_real_receipts(self):
+  self.start_prepare(None);self.flow.uncertain(FILE,EVENT,'image');r={'message_id':'FAKE_IMAGE_MESSAGE','accepted_at':'2026-10-30T19:00:00Z'}
+  with self.assertRaises(ValueError):self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=False,library=self.library,native_receipt=r)
+  with self.assertRaises(ValueError):self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=True,library=None,native_receipt=r)
+  with self.assertRaises(ValueError):self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=True,library=self.library,native_receipt=None)
+  out=self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=True,library=self.library,native_receipt=r)
+  self.assertTrue(out['image_send_accepted']);self.now+=10000;self.assertEqual(self.flow.start(FILE,EVENT)['decision'],'answer_pending')
+  with self.assertRaises(ValueError):self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=True,library=self.library,native_receipt=r)
+ def test_reconcile_not_created_allows_one_new_claim_only_before_library(self):
+  self.start_prepare(None);old=self.claim;self.flow.uncertain(FILE,EVENT,'image')
+  self.assertEqual(self.flow.start(FILE,EVENT)['reason'],'creating_uncertain')
+  out=self.flow.reconcile_image(FILE,EVENT,'not_created',outcome_verified=True);self.assertEqual(out['decision'],'reclaimable')
+  a=self.flow.start(FILE,EVENT);self.assertEqual(a['decision'],'read_source');self.assertNotEqual(a['claim_id'],old)
+  self.assertEqual(self.flow.start(FILE,EVENT)['decision'],'hold')
+ def test_reconcile_not_created_refused_after_library_save(self):
+  self.start_prepare(None);self.saved();self.flow.uncertain(FILE,EVENT,'image')
+  with self.assertRaises(ValueError):self.flow.reconcile_image(FILE,EVENT,'not_created',outcome_verified=True)
+  out=self.flow.reconcile_image(FILE,EVENT,'sent',outcome_verified=True,native_receipt={'message_id':'M','accepted_at':'2026-10-30T19:00:00Z'})
+  self.assertTrue(out['image_send_accepted'])
  def test_unknown_answer_keeps_image_accepted_and_holds_answer(self):
   self.start_prepare();self.saved();self.image();self.flow.reserve_answer(FILE,EVENT,self.meta);self.flow.uncertain(FILE,EVENT,'answer');self.assertEqual(self.flow.start(FILE,EVENT)['answer_state'],'posting_uncertain')
  def test_expired_or_revoked_question_context_holds(self):

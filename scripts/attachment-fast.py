@@ -35,6 +35,18 @@ def cleanup_staged(engine,root,file_id,event_id,claim_id):
     if hashlib.sha256(path.read_bytes()).hexdigest()!=expected:raise ValueError('Staging identity mismatch')
     path.unlink();return {'staging_cleanup':'done'}
 
+def drop_stale_stage(root,file_id,claim_id):
+    # Remove the verified-unsent copy of a previous claim; a new claim stages its own copy.
+    import stat
+    directory=root/'state/attachment-staging'
+    for ext in ('.png','.jpg'):
+        path=directory/(file_id+'-'+claim_id+ext)
+        try:st=path.lstat()
+        except FileNotFoundError:continue
+        if not stat.S_ISREG(st.st_mode)or st.st_uid!=os.getuid():raise ValueError('Unsafe staging copy')
+        path.unlink();return 'done'
+    return 'already_absent'
+
 def stage_native(engine,file_id,event_id,claim_id,content,*,root=ROOT):
     # This adapter verifies actual image bytes; assertions alone are insufficient.
     from PIL import Image
@@ -116,7 +128,7 @@ def select_ledger(root,choice):
     return root/'state/attachment-map.json'
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['start','prepare','saved-reserve','image-accepted','answer-reserve','answer-accepted','cleanup-staged','uncertain']);p.add_argument('file_id');p.add_argument('event_id');p.add_argument('--ledger',choices=['instance','existing-workspace'],required=True);args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['start','prepare','saved-reserve','image-accepted','answer-reserve','answer-accepted','cleanup-staged','uncertain','reconcile']);p.add_argument('file_id');p.add_argument('event_id');p.add_argument('--ledger',choices=['instance','existing-workspace'],required=True);args=p.parse_args()
     cfg=json.loads((ROOT/'approved.config.json').read_text());database=Path(cfg['database']).resolve()
     if not database.is_relative_to(ROOT/'state'):raise ValueError('Approved database required')
     # Existing configured ledger only. The live deployment must preserve its own map path.
@@ -132,6 +144,9 @@ def main():
     elif a=='answer-reserve':result=engine.reserve_answer(f,e,payload['metadata'])
     elif a=='answer-accepted':result=engine.answer_accepted(f,e,payload['native_receipt'],caption_sha256=payload['caption_sha256'],submission_sha256=payload['submission_sha256'],question_response_included=payload['question_response_included'])
     elif a=='cleanup-staged':result=cleanup_staged(engine,ROOT,f,e,payload['claim_id'])
+    elif a=='reconcile':
+        lib=payload.get('library_receipt');result=engine.reconcile_image(f,e,payload['outcome'],outcome_verified=payload.get('outcome_verified'),library=lib,native_receipt=payload.get('native_receipt'))
+        if result['decision']=='reclaimable':result['staging_cleanup']=drop_stale_stage(ROOT,f,result['previous_claim_id'])
     else:result=engine.uncertain(f,e,payload['phase'])
     print(json.dumps({**result,'local_stage_ms':round((time.monotonic()-t)*1000,2)},ensure_ascii=False))
 if __name__=='__main__':

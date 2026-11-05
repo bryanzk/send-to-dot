@@ -119,6 +119,14 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
   inbox.auth(token,'read');const r=await run('uncertain',p.file_id,p.event_id,{phase:p.phase});if(p.phase==='image')r2?.drop(p.file_id);
   audit({event:'delivery.uncertain',outcome:p.phase});return result({type:'send-to-dot.record',version:1,decision:r.decision??'hold',automatic_retry:false,...next(p.file_id)});
  });
+ server.registerTool('reconcile_image_delivery',{description:'Resolve an image that is held as uncertain, ONLY after checking the real outcome in the Library and the original conversation. outcome=sent: give the real Library receipt (if not recorded yet) and the real message receipt; records only, sends nothing. outcome=not_created: only when you verified no Library file was saved and no message was sent; the item becomes claimable once. Never resend an image that is already in the conversation.',inputSchema:z.object({...ids,outcome:z.enum(['sent','not_created']),outcome_verified:z.literal(true),library_file_id:z.string().regex(/^libfile_[A-Za-z0-9_-]+$/).optional(),library_native_file_id:z.string().regex(/^file_[A-Za-z0-9_-]+$/).optional(),library_version:z.number().int().min(0).optional(),message_id:z.string().min(1).max(200).optional(),accepted_at:z.string().min(10).max(64).optional()}).strict(),annotations:ro},async p=>{
+  inbox.auth(token,'read');
+  const lib=p.library_file_id?{library_file_id:p.library_file_id,file_id:p.library_native_file_id,version:p.library_version}:null;
+  const r=await run('reconcile',p.file_id,p.event_id,{outcome:p.outcome,outcome_verified:true,library_receipt:lib,native_receipt:p.message_id?{message_id:p.message_id,accepted_at:p.accepted_at}:null});
+  let cleaned=r.staging_cleanup??null;if(p.outcome==='sent'&&r.image_send_accepted){cleaned=(await run('cleanup-staged',p.file_id,p.event_id,{claim_id:r.claim_id})).staging_cleanup??'failed';r2?.drop(p.file_id);}
+  audit({event:'delivery.reconciled',outcome:r.decision??'failed',eventId:p.event_id});
+  return result({type:'send-to-dot.reconcile',version:1,decision:r.decision??'hold',reason:r.reason??null,staging_cleanup:cleaned,automatic_retry:false,user_visible_confirmed:false,...next(null)});
+ });
 }
 
 export function serveOriginal(pathname,links,headers,audit=()=>{}){
