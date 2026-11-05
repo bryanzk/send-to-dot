@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 (preview)
+
+- Optional dot-native delivery (`dotNativeDelivery`, off by default): one-call claim against the canonical ledger, single-use 2-minute original download links, optional private Cloudflare R2 pre-staging with presigned GETs, batch receipt recording, `next_pending` draining and argument-free claims. See `docs/DOT_NATIVE_DELIVERY.md`.
+- `pending_deliveries` work list; uncertain records stay held after the inbox copy expires. Unclaimed-event alert in the audit log.
+- `reconcile_image_delivery` resolves an uncertain image only from a checked real outcome; nothing is resent automatically.
+- `inbox_status` connection check, OAuth registration audit, `/.well-known/oauth-protected-resource/mcp` alias and per-dispatch audit records.
+- Measured upload-to-accepted 45–72 s on the author deployment; the 30 s target is not met on this path. Physical-phone timing of this release is not yet verified. iPhone Shortcut and Android page are unchanged.
+
 ## 0.2.1
 
 - Put ready-to-copy dot install instructions first in English and Chinese README, with the release URL on its own line to avoid Chinese punctuation entering the link.

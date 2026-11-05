@@ -57,7 +57,7 @@ One real user environment completed Android and iPhone image-and-question sharin
 - Send one PNG or JPEG at a time, up to 8 MiB. HEIC, PDF, video and automatic gallery sync are unsupported.
 - Keep passwords, owner codes, API keys and tunnel secrets out of chat, repositories and shared Shortcuts.
 
-[Setup](docs/QUICKSTART.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Privacy and security](docs/THREAT_MODEL.md) · [Architecture](docs/ARCHITECTURE.md) · [Dependencies](docs/DEPENDENCIES.md)
+[Setup](docs/QUICKSTART.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Privacy and security](docs/THREAT_MODEL.md) · [Architecture](docs/ARCHITECTURE.md) · [Dot-native delivery (optional)](docs/DOT_NATIVE_DELIVERY.md) · [Dependencies](docs/DEPENDENCIES.md)
 
 ## Source and license
 
