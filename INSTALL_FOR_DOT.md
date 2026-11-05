@@ -99,6 +99,21 @@ Large images may return a viewing preview plus a short-lived read receipt. The a
 - Validate event in this dot, actual image/question match, original private attachment, same-conversation answer and duplicate skip. Ask the user whether the attachment actually appears; an accepted send receipt alone does not prove rendering.
 - Return the fixed address, observed stages, expiry/renewal instructions, stop/recovery commands and remaining unknowns. Never claim an unchanged old grant is permanent one-time configuration.
 
+## Cloudflare path (no Mac)
+
+Use this when the user asks for the Cloudflare deployment or has no always-online Mac. Everything runs on the user's own Cloudflare account (free Workers plan, one Durable Object). The user does every sign-in and every secret entry; never ask for a code or token in chat.
+
+1. Select the newest published release as above and tell the user the tag. Review `cloud/` and `wrangler.toml` in it.
+2. Give the user this link and tell them what they will see: `https://deploy.workers.cloudflare.com/?url=https://github.com/bryanzk/send-to-dot/tree/<TAG>` (replace `<TAG>`, e.g. `v0.9.1`). They sign in to Cloudflare and GitHub/GitLab, keep the project name (or choose one), enter a new **owner code** of 16+ characters for `APPROVAL_SECRET`, leave `ORIGIN` empty and click Deploy. Cloudflare copies the repository into their account and deploys it. Do not choose a paid plan.
+3. Ask for the deployed address only (for example `https://send-to-dot.<name>.workers.dev`). It is not a secret.
+4. Ask the user to open `<address>/setup`, enter the owner code and save the phone code it shows once. The first successful setup binds the inbox to that address.
+5. ChatGPT: the user adds a custom MCP server `<address>/mcp` with OAuth and approves with the owner code. Then refresh tools.
+6. In this conversation create one `file.created` task (`inbox_id=personal`) for that app, using the task outline in `docs/DOT_NATIVE_DELIVERY.md`. Call `inbox_status` and report the result.
+7. Phones: Android opens `<address>` in Chrome and connects with the phone code; iPhone imports `Send-to-dot.shortcut` from the same release and sets 收图地址 to `<address>` and 手机连接码 to the phone code.
+8. Verify with one generated or user-chosen test image: the original must appear in this conversation. Report the times you can see; accepted is not the same as visible.
+
+The address is fixed after setup. To move to another address, deploy a new instance. Status, audit timeline and ledger import: `cloud/admin.mjs` with the owner code as the token.
+
 ## Evidence levels
 
 Use separate labels for actual local code/HTTP checks, simulated platform callbacks, actual platform connection, real phone sharing and user-visible attachment acceptance. `plan`, `preflight` and `smoke` cannot replace the later stages. The project has single-user trial evidence; independent target-user installation remains a release limitation.

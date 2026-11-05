@@ -4,9 +4,7 @@ export class InboxObject extends DurableObject {
   constructor(ctx,env){super(ctx,env);
     this.box=buildInbox({sql:ctx.storage.sql,tx:fn=>ctx.storage.transactionSync(fn),env});}
   async fetch(request){
-    const path=new URL(request.url).pathname;
-    const r=path.startsWith('/admin/')?(await this.box.admin(request))??Response.json({error:'Not found'},{status:404}):await this.box.app.fetch(request);
-    await this.schedule();return r;}
+    const r=await this.box.handle(request);await this.schedule();return r;}
   async alarm(){await this.box.tick();await this.schedule();}
   async schedule(){const at=this.box.nextWake();const cur=await this.ctx.storage.getAlarm();
     if(at==null){if(cur!=null)await this.ctx.storage.deleteAlarm();return;}

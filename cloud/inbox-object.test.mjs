@@ -62,3 +62,21 @@ test('admin audit lists dispatch, claim and record events plus ledger receipts, 
   assert.equal(j.items.at(-1).accepted_at,'2026-11-05T12:00:00Z');
   assert.doesNotMatch(JSON.stringify(j),/reader-fixture|phone-code-fixture|whsec_|\/api\/original\//);
 });
+test('one-click deployment: no ORIGIN or STORAGE_KEY; owner /setup binds the origin and issues a phone code once',async()=>{
+  const st=fakeStorage();const env1={REDIRECTS:'["https://chat.example.test/cb"]',APPROVAL_SECRET:'owner-choice'};
+  const box=buildInbox({sql:st.sql,tx:st.tx,env:env1});const o='https://send-to-dot.someone.workers.dev';
+  const go=(path,init={})=>box.handle(new Request(o+path,init));
+  assert.equal((await go('/')).status,302);assert.equal((await go('/mcp',{method:'POST'})).status,503);
+  assert.equal((await go('/setup')).status,200);
+  const post=(code,origin=o)=>go('/setup',{method:'POST',headers:{Origin:origin,'Content-Type':'application/x-www-form-urlencoded'},body:'owner='+encodeURIComponent(code)});
+  assert.match(await (await post('wrong')).text(),/不对/);assert.equal((await go('/mcp',{method:'POST'})).status,503);
+  assert.equal((await post('owner-choice','https://evil.example')).status,403);
+  const html=await (await post('owner-choice')).text();const code=html.match(/<code>([A-Za-z0-9_-]{32})<\/code>/)[1];
+  assert.ok(html.includes(o+'/mcp'));
+  const up=await go('/api/upload',{method:'POST',headers:{Authorization:'Bearer '+code,Origin:o,'Content-Type':'image/png','X-Share-ID':'oneclickfixture01'},body:makePng(16)});assert.equal(up.status,201);
+  assert.equal((await go('/mcp',{method:'POST'})).status,401);
+  const other=buildInbox({sql:st.sql,tx:st.tx,env:env1});
+  const r=await other.handle(new Request('https://other.example.com/setup',{method:'POST',headers:{Origin:'https://other.example.com','Content-Type':'application/x-www-form-urlencoded'},body:'owner=owner-choice'}));assert.equal(r.status,409);
+  assert.equal(other.inbox.key.equals(box.inbox.key),true);
+  const s=await (await other.handle(new Request(o+'/admin/status',{headers:{Authorization:'Bearer owner-choice'}}))).json();assert.equal(s.upload_codes,1);assert.equal(s.images,1);
+});

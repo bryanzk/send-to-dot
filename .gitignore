@@ -19,3 +19,5 @@ installer.*.tmp
 # Cloudflare local build/dev state
 cloud/.wrangler/
 .wrangler/
+.dev.vars
+.env

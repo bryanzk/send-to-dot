@@ -18,6 +18,18 @@ https://github.com/bryanzk/send-to-dot/releases
 
 This is guided setup, not a one-click or unattended install. Your dot needs tools and permission to operate your own Mac. You still provide an always-online Mac and a stable secure address, and complete your own account approval and phone steps.
 
+### No Mac: deploy on Cloudflare (preview)
+
+Copy this into your dot conversation instead if you do not want to keep a Mac running:
+
+```text
+Set up the newest published Send to dot release from the repository below on my own Cloudflare account, including preview releases, so no Mac is needed. Tell me which version you chose and follow the "Cloudflare path" in that release's INSTALL_FOR_DOT.md. Give me each step I must do myself (Cloudflare and GitHub sign-in, choosing my owner code, adding the ChatGPT app, phone setup) one at a time, then create the file.created task in this conversation and check it with a generated test image. Never ask me to paste my owner code, phone code or any token into chat.
+
+https://github.com/bryanzk/send-to-dot/releases
+```
+
+You need a free Cloudflare account and a GitHub (or GitLab) account; deployment uses Cloudflare's “Deploy to Cloudflare” page on the free Workers plan. [Details](docs/CLOUDFLARE_DEPLOYMENT.md).
+
 I built this because sharing a photo to ChatGPT kept opening a new chat. Finding the original conversation and uploading the photo again interrupted what I was doing. Send to dot receives only photos you choose to share. It does not scan your gallery or impersonate your messages. Originals appear as assistant attachments; answers can follow separately.
 
 ## What you need

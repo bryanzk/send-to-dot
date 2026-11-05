@@ -4,7 +4,7 @@ import gzip, hashlib, io, tarfile, json
 
 root = Path(__file__).resolve().parents[1]
 allowed = {
-    '': {'.mjs', '.py', '.json', '.md', '.txt'},
+    '': {'.mjs', '.py', '.json', '.md', '.txt', '.toml'},
     'scripts': {'.mjs', '.py', '.sh'},
     'docs': {'.md', '.txt'},
     'web': {'.js', '.html', '.css', '.webmanifest', '.png', '.svg'},
@@ -12,7 +12,7 @@ allowed = {
     'ios': {'.swift', '.plist', '.entitlements', '.md', '.pbxproj'},
     'cloud': {'.mjs', '.toml'},
 }
-special = {'.gitignore', '.env.example', 'LICENSE'}
+special = {'.gitignore', '.env.example', '.dev.vars.example', 'LICENSE'}
 blocked = {'.secrets', 'state', 'node_modules', '.venv', '__pycache__', '.git'}
 paths = []
 for path in sorted(root.rglob('*')):

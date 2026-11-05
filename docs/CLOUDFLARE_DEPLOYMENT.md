@@ -17,7 +17,14 @@ Status: preview. Run by the author on one account; another user's independent Cl
 
 Durable Objects with SQLite are available on the Workers Free plan (100,000 requests/day, 5 GB stored). One person's phone sharing stays far below that. Nothing here enables a paid plan.
 
-## Deploy
+## One-click deploy (recommended)
+
+1. Open `https://deploy.workers.cloudflare.com/?url=https://github.com/bryanzk/send-to-dot/tree/<TAG>` for the release you reviewed. Sign in to Cloudflare and GitHub/GitLab; Cloudflare copies the repository into your account and deploys the root `wrangler.toml` (Worker `send-to-dot`, one Durable Object, free plan).
+2. When asked for `APPROVAL_SECRET`, choose your **owner code** (16+ characters). Leave `ORIGIN` empty.
+3. Open `https://<your-worker>.workers.dev/setup`, enter the owner code and save the phone code shown once. The first setup binds the inbox to that address. Without a `STORAGE_KEY` secret the encryption key is generated inside the Durable Object.
+4. Continue with ChatGPT and phones (steps 5–6 below). Or let your dot guide all of this: README, “No Mac”.
+
+## Manual deploy
 
 Requirements: Node 25.6.1+, a Cloudflare account with a zone for your domain, `npm ci` in the checkout.
 
@@ -30,7 +37,7 @@ Requirements: Node 25.6.1+, a Cloudflare account with a zone for your domain, `n
    npx wrangler@4.150.0 secret bulk /tmp/inbox-secrets.json --config cloud/wrangler.toml
    ```
    Keep the JSON in a private, owner-only place, then delete the temporary copy. `APPROVAL_SECRET` is the owner code you type when connecting ChatGPT. Moving from a Mac instance, reuse its owner code instead.
-4. Phone upload code: `INBOX_ORIGIN=https://<your-host> ADMIN_TOKEN=… node cloud/admin.mjs issue-upload-code` prints a new upload-only code once and stores only its hash. Moving from a Mac instance, import the existing code's hash instead so phones keep their code.
+4. Phone upload code: open `https://<your-host>/setup`, or `INBOX_ORIGIN=https://<your-host> ADMIN_TOKEN=… node cloud/admin.mjs issue-upload-code` (the owner code also works as `ADMIN_TOKEN`) prints a new upload-only code once and stores only its hash. Moving from a Mac instance, import the existing code's hash instead so phones keep their code.
 5. In ChatGPT add a custom MCP server `https://<your-host>/mcp` (OAuth) and approve with the owner code. Then ask dot to create the `file.created` task (`docs/DOT_NATIVE_DELIVERY.md`, task outline).
 6. Phones: open `https://<your-host>` on Android and connect with the upload code; in the iPhone Shortcut change the 收图地址 text to `https://<your-host>`.
 

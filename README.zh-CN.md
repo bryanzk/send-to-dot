@@ -18,6 +18,18 @@ https://github.com/bryanzk/send-to-dot/releases
 
 这不是一键无人值守安装。你的 dot 必须能操作你自己的 Mac。你仍需准备持续开机联网的 Mac 和固定安全网址，并亲自完成账号授权及手机步骤。
 
+### 不用 Mac：部署到 Cloudflare（预览）
+
+如果不想让一台 Mac 一直开着，改为把下面这段复制到 dot 对话：
+
+```text
+请从下面的仓库选择最新发布的 Send to dot 版本（包括预览版），部署到我自己的 Cloudflare 账号上，不需要 Mac。告诉我选中了哪个版本，并按该版本 INSTALL_FOR_DOT.md 里的“Cloudflare path”带我完成。需要我亲自做的步骤（登录 Cloudflare 和 GitHub、设定本人确认码、添加 ChatGPT 应用、设置手机）请一步一步告诉我；然后在这个对话里创建 file.created 定时任务，并用一张生成的测试图检查。不要让我把本人确认码、手机连接码或任何令牌贴到聊天里。
+
+https://github.com/bryanzk/send-to-dot/releases
+```
+
+需要一个免费的 Cloudflare 账号和一个 GitHub（或 GitLab）账号；部署通过 Cloudflare 的“Deploy to Cloudflare”页面完成，使用免费套餐。[详细说明](docs/CLOUDFLARE_DEPLOYMENT.md)。
+
 我做这个工具，是因为手机把图片分享给 ChatGPT 总会进入新聊天，还要切回原对话再传一次。Send to dot 只接收你主动分享的图片，不扫描相册；助手把原图作为附件发回原对话，不冒充你发送消息。
 
 适用于已经能使用 dot、且能连接自建应用的 ChatGPT 用户。付费套餐本身不保证提供这些能力。
