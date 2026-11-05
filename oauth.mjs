@@ -21,14 +21,13 @@ export class OAuth {
  exchange(p){
   if(p.resource&&p.resource!==this.origin+'/mcp'||p.grant_type!=='authorization_code'||!/^[-._~a-zA-Z0-9]{43,128}$/.test(p.code_verifier??''))throw Error('Invalid grant');
   const key=digest(p.code??''),challenge=createHash('sha256').update(p.code_verifier).digest('base64url');
-  this.inbox.db.exec('BEGIN IMMEDIATE');
-  try{
+  return this.inbox.tx(()=>{
    const row=this.inbox.db.prepare('SELECT * FROM codes WHERE hash=?').get(key);
    if(!row||row.expires<=this.clock()||row.client!==p.client_id||row.redirect!==p.redirect_uri||!equal(row.challenge,challenge))throw Error('Invalid grant');
    if(this.inbox.db.prepare('DELETE FROM codes WHERE hash=?').run(key).changes!==1)throw Error('Invalid grant');
-   const token=randomBytes(32).toString('base64url');this.inbox.grant(token,'owner','read subscribe');this.inbox.db.exec('COMMIT');
+   const token=randomBytes(32).toString('base64url');this.inbox.grant(token,'owner','read subscribe');
    return {access_token:token,token_type:'Bearer',expires_in:ACCESS_SECONDS,scope:'read subscribe'};
-  }catch(e){this.inbox.db.exec('ROLLBACK');throw e;}
+  });
  }
 
 }

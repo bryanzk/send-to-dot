@@ -1,22 +1,12 @@
 // Dot-native delivery tools: let the original dot claim, save and post an original image
 // in ONE agent turn, without a separate engineering hand-off. The canonical delivery ledger
-// stays the single source of truth: every state change goes through scripts/attachment-fast.py
-// (same SplitDelivery state machine, same dedup, same uncertain/hold rules).
-import {spawn} from 'node:child_process';import {randomBytes} from 'node:crypto';import {readFileSync} from 'node:fs';import {fileURLToPath} from 'node:url';
+// stays the single source of truth: every state change goes through `run` (Node: scripts/attachment-fast.py
+// via ledger_runner.mjs; Cloudflare: cloud/split_ledger.mjs), same state machine, dedup and hold rules.
+import {randomBytes} from 'node:crypto';
 import {attachmentSource} from './image_delivery.mjs';
 
 export const INLINE_ORIGINAL_LIMIT=4*1024*1024;
 
-export function ledgerRunner({python=process.env.DOT_INBOX_PYTHON??'python3',script=fileURLToPath(new URL('./scripts/attachment-fast.py',import.meta.url)),ledger='existing-workspace',timeoutMs=20000}={}){
- return (action,fileId,eventId,payload={})=>new Promise(resolve=>{
-  const child=spawn(python,[script,action,fileId,eventId,'--ledger',ledger],{stdio:['pipe','pipe','ignore']});let out='';
-  const timer=setTimeout(()=>child.kill('SIGKILL'),timeoutMs);
-  child.stdout.on('data',c=>{if(out.length<65536)out+=c;});
-  child.on('error',()=>{});
-  child.on('close',code=>{clearTimeout(timer);let r;try{r=JSON.parse(out.trim().split('\n').pop());}catch{r={decision:'hold',reason:'ledger_result_unavailable'};}resolve({exit:code,...r});});
-  child.stdin.on('error',()=>{});child.stdin.end(JSON.stringify(payload));
- });
-}
 
 // One-time original download links: the original never passes through the agent's model
 // context. 256-bit random token, single use, short TTL, memory only, never logged.
@@ -31,7 +21,7 @@ export class OriginalLinks{
 // kind=image: never claimed, or an expired claim with no external action yet.
 // kind=answer: image accepted, answer still pending. held: needs reconciliation, never auto-processed.
 export function pendingDeliveries(inbox,ledgerPath,{now=Date.now(),owner='owner'}={}){
- let items;try{items=JSON.parse(readFileSync(ledgerPath,'utf8')).items;if(!Array.isArray(items))throw Error();}catch{return {ok:false,error:'ledger_unavailable',pending:[],held:[]};}
+ let items;try{items=typeof ledgerPath==='function'?ledgerPath():JSON.parse(process.getBuiltinModule('node:fs').readFileSync(ledgerPath,'utf8')).items;if(!Array.isArray(items))throw Error();}catch{return {ok:false,error:'ledger_unavailable',pending:[],held:[]};}
  const byFile=new Map(items.map(x=>[x.source_file_id,x]));const pending=[],held=[];
  const rows=inbox.db.prepare("SELECT id,event,expires,idem,CASE WHEN caption IS NOT NULL THEN 1 ELSE 0 END AS q FROM images WHERE owner=? AND expires>? ORDER BY expires").all(owner,now);
  for(const r of rows){
@@ -58,7 +48,7 @@ export function unclaimedWatcher(inbox,ledgerPath,audit,{afterMs=60000,clock=Dat
 const text=obj=>({type:'text',text:JSON.stringify(obj)});
 const result=obj=>({content:[text(obj)]});
 
-export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledgerRunner(),inlineLimit=INLINE_ORIGINAL_LIMIT,audit=()=>{},links=null,origin=null,ledgerPath=null,r2=null}){
+export function registerDeliveryTools(server,{z,inbox,token,readCache,run,inlineLimit=INLINE_ORIGINAL_LIMIT,audit=()=>{},links=null,origin=null,ledgerPath=null,r2=null}){
  const ids={file_id:z.string().uuid(),event_id:z.string().regex(/^evt_[A-Za-z0-9_-]{8,100}$/)};
  const next=(exclude)=>{if(!ledgerPath)return {};const r=pendingDeliveries(inbox,ledgerPath);if(!r.ok)return {next_pending:null,pending_count:null};const rest=r.pending.filter(x=>x.file_id!==exclude);return {next_pending:rest[0]?{file_id:rest[0].file_id,event_id:rest[0].event_id,kind:rest[0].kind}:null,pending_count:rest.length,held_count:r.held.length};};
  const ro={readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false};
@@ -79,15 +69,15 @@ export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledger
   if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow',...next(p.file_id)});}
   const start=await run('start',p.file_id,p.event_id,{});
   if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision,eventId:p.event_id});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false,...next(p.file_id)});}
-  const source=attachmentSource(image,token,readCache);
-  const prep=await run('prepare',p.file_id,p.event_id,{claim_id:start.claim_id,content:[text(source)]});
+  const source=readCache?attachmentSource(image,token,readCache):null;
+  const prep=await run('prepare',p.file_id,p.event_id,{claim_id:start.claim_id,content:source?[text(source)]:null},{image});
   if(prep.decision!=='save_original_once'){audit({event:'delivery.claim',outcome:'prepare_'+prep.decision});return result({type:'send-to-dot.claim',version:1,decision:'hold',reason:prep.reason??'prepare_failed',claimed:true,claim_id:start.claim_id,automatic_retry:false,...next(p.file_id)});}
   audit({event:'delivery.claim',outcome:'claimed',eventId:p.event_id,ms:Date.now()-t0});
   const staged=r2?.url(p.file_id);
   if(staged||links){let dl,exp,single;if(staged){dl=staged.url;exp=staged.expires_at;single=false;audit({event:'delivery.link',source:'r2',eventId:p.event_id});}else{const link=links.issue(image.bytes,image.mime,{file_id:p.file_id,claim_id:start.claim_id,sha256:prep.sha256});dl=origin+'/api/original/'+link.token;exp=new Date(link.expires).toISOString();single=true;audit({event:'delivery.link',source:'host',eventId:p.event_id});}
-   return result({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,download_url:dl,download_expires_at:exp,single_use:single,...next(p.file_id),original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:source.submission,
+   return result({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,download_url:dl,download_expires_at:exp,single_use:single,...next(p.file_id),original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:image.submission.caption?image.submission:null,
     next:'In ONE code execution: download download_url once (HTTP GET, no auth header) to a file, verify SHA256 equals original_sha256 and size equals original_bytes, save that file to the private Library once, send it once with library_file_ids, then call record_image_sent. The link works once and expires quickly; never share or print it. On any failure call mark_delivery_uncertain; never re-claim.'});}
-  return {content:[{type:'image',data:image.bytes.toString('base64'),mimeType:image.mime},text({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:source.submission,
+  return {content:[{type:'image',data:image.bytes.toString('base64'),mimeType:image.mime},text({type:'send-to-dot.claim',version:1,decision:'save_original_once',claimed:true,file_id:p.file_id,eventId:p.event_id,claim_id:start.claim_id,original_sha256:prep.sha256,original_bytes:prep.byte_length,original_mime:prep.mime,width:prep.width,height:prep.height,answer_state:prep.answer_state,submission:image.submission.caption?image.submission:null,
    next:'Write the image block bytes to a file, verify SHA256 equals original_sha256, save to Library once, send once with library_file_ids, then record_image_sent. If anything is uncertain call mark_delivery_uncertain; never re-save or re-send.'})]};
  });
 

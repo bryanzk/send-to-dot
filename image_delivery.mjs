@@ -1,6 +1,7 @@
-import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';import {createHash} from 'node:crypto';
+import {createHash} from 'node:crypto';
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 export function makeViewingPreview(bytes){
+ const {spawnSync}=process.getBuiltinModule('node:child_process'),{fileURLToPath}=process.getBuiltinModule('node:url');
  const r=spawnSync(process.env.DOT_INBOX_PYTHON??'python3',[fileURLToPath(new URL('./preview_image.py',import.meta.url))],{input:bytes,timeout:10000,maxBuffer:1100000});
  if(r.status!==0||!r.stdout.length||r.stdout.length>1048576)throw Error('Viewing preview unavailable');return r.stdout;
 }

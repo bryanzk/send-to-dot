@@ -15,3 +15,7 @@ __pycache__/
 
 .installer.lock
 installer.*.tmp
+
+# Cloudflare local build/dev state
+cloud/.wrangler/
+.wrangler/

@@ -8,7 +8,7 @@ test('website gives plain actions and explains clearing phone copies',()=>{
  assert.doesNotMatch(app,/UTF-8|收件回执无效|问题未能暂存/);
 });
 test('owner approval explains viewing scope and separates phone code',()=>{
- const s=readFileSync(new URL('./server.mjs',import.meta.url),'utf8');assert.ok(s.includes('本人确认码（不是手机连接码）'));assert.ok(s.includes('允许 ChatGPT 在 30 天内查看图片'));assert.ok(s.includes('你可以随时停止允许'));assert.ok(!s.includes('读取和事件访问授权30天'));
+ const s=readFileSync(new URL('./app.mjs',import.meta.url),'utf8');assert.ok(s.includes('本人确认码（不是手机连接码）'));assert.ok(s.includes('允许 ChatGPT 在 30 天内查看图片'));assert.ok(s.includes('你可以随时停止允许'));assert.ok(!s.includes('读取和事件访问授权30天'));
 });
 test('native draft does not display raw system error descriptions',()=>{
  for(const name of ['Shared/Inbox.swift','App/SendToDotApp.swift','ShareExtension/ShareViewController.swift']){

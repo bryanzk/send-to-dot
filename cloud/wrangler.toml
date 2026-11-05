@@ -1,0 +1,25 @@
+# Cloudflare deployment of the inbox (no Mac required). Fill ORIGIN/REDIRECTS and the route,
+# then set secrets: STORAGE_KEY (32 random bytes, base64), APPROVAL_SECRET, optional ADMIN_TOKEN.
+name = "send-to-dot-inbox"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "node build-assets.mjs"
+
+[vars]
+ORIGIN = "https://inbox.example.com"
+REDIRECTS = '["https://chatgpt.com/connector_platform_oauth_redirect"]'
+
+[[durable_objects.bindings]]
+name = "INBOX"
+class_name = "InboxObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["InboxObject"]
+
+# [[routes]]
+# pattern = "inbox.example.com"
+# custom_domain = true
