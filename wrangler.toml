@@ -1,7 +1,7 @@
 # One-click Cloudflare deployment ("Deploy to Cloudflare" button). The Mac install ignores this file.
 # Free Workers plan. The owner code (APPROVAL_SECRET) is asked for during deployment; the address
 # is bound on the owner's first visit to /setup. See docs/CLOUDFLARE_DEPLOYMENT.md.
-name = "send-to-dot"
+name = "send-to-dot-cloud"
 main = "cloud/worker.mjs"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]

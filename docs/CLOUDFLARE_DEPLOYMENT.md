@@ -19,7 +19,7 @@ Durable Objects with SQLite are available on the Workers Free plan (100,000 requ
 
 ## One-click deploy (recommended)
 
-1. Open `https://deploy.workers.cloudflare.com/?url=https://github.com/bryanzk/send-to-dot/tree/<TAG>` for the release you reviewed. Sign in to Cloudflare and GitHub/GitLab; Cloudflare copies the repository into your account and deploys the root `wrangler.toml` (Worker `send-to-dot`, one Durable Object, free plan).
+1. Open `https://deploy.workers.cloudflare.com/?url=https://github.com/bryanzk/send-to-dot/tree/<TAG>` for the release you reviewed. Sign in to Cloudflare and GitHub/GitLab; Cloudflare copies the repository into your account and deploys the root `wrangler.toml` (Worker `send-to-dot-cloud`, one Durable Object, free plan). The project name also names the new Git repository, so it must not match a repository you already have.
 2. When asked for `APPROVAL_SECRET`, choose your **owner code** (16+ characters). There is no address field: the address is bound on first `/setup`.
 3. Open `https://<your-worker>.workers.dev/setup`, enter the owner code and save the phone code shown once. The first setup binds the inbox to that address. Without a `STORAGE_KEY` secret the encryption key is generated inside the Durable Object.
 4. Continue with ChatGPT and phones (steps 5–6 below). Or let your dot guide all of this: README, “No Mac”.
