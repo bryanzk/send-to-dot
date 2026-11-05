@@ -2,7 +2,7 @@
 // in ONE agent turn, without a separate engineering hand-off. The canonical delivery ledger
 // stays the single source of truth: every state change goes through scripts/attachment-fast.py
 // (same SplitDelivery state machine, same dedup, same uncertain/hold rules).
-import {spawn} from 'node:child_process';import {randomBytes} from 'node:crypto';import {fileURLToPath} from 'node:url';
+import {spawn} from 'node:child_process';import {randomBytes} from 'node:crypto';import {readFileSync} from 'node:fs';import {fileURLToPath} from 'node:url';
 import {attachmentSource} from './image_delivery.mjs';
 
 export const INLINE_ORIGINAL_LIMIT=4*1024*1024;
@@ -27,16 +27,43 @@ export class OriginalLinks{
  take(token){this.sweep();if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))return null;const v=this.items.get(token);if(!v)return null;this.items.delete(token);return v.expires>this.clock()?v:null;}
 }
 
+// Work list for the dot, computed from the inbox (unexpired images) and the canonical ledger.
+// kind=image: never claimed, or an expired claim with no external action yet.
+// kind=answer: image accepted, answer still pending. held: needs reconciliation, never auto-processed.
+export function pendingDeliveries(inbox,ledgerPath,{now=Date.now(),owner='owner'}={}){
+ let items;try{items=JSON.parse(readFileSync(ledgerPath,'utf8')).items;if(!Array.isArray(items))throw Error();}catch{return {ok:false,error:'ledger_unavailable',pending:[],held:[]};}
+ const byFile=new Map(items.map(x=>[x.source_file_id,x]));const pending=[],held=[];
+ const rows=inbox.db.prepare("SELECT id,event,expires,idem,CASE WHEN caption IS NOT NULL THEN 1 ELSE 0 END AS q FROM images WHERE owner=? AND expires>? ORDER BY expires").all(owner,now);
+ for(const r of rows){
+  if(String(r.idem).startsWith('preflight_'))continue;
+  const x=byFile.get(r.id),base={file_id:r.id,event_id:r.event,question_present:!!r.q,uploaded_at:new Date(r.expires-3600000).toISOString()};
+  if(!x){pending.push({...base,kind:'image'});continue;}
+  if(x.state==='send_accepted')continue;
+  if(x.image_state==='claimed'&&(x.lease_until??0)*1000<=now){pending.push({...base,kind:'image'});continue;}
+  if(x.image_state==='accepted'&&['pending','paused_unverified'].includes(x.answer_state)){pending.push({...base,kind:'answer'});continue;}
+  if(x.image_state!=='accepted'||x.answer_state!=='not_requested')held.push({...base,image_state:x.image_state??x.state??null,answer_state:x.answer_state??null});
+ }
+ return {ok:true,pending,held};
+}
+// Alert-only watchdog: log once per event that nobody claimed within afterMs.
+export function unclaimedWatcher(inbox,ledgerPath,audit,{afterMs=60000,clock=Date.now}={}){
+ const seen=new Set();
+ return ()=>{const now=clock();const r=pendingDeliveries(inbox,ledgerPath,{now});if(!r.ok)return;
+  for(const p of r.pending){if(p.kind!=='image'||seen.has(p.event_id))continue;const age=now-Date.parse(p.uploaded_at);if(age>=afterMs){seen.add(p.event_id);audit({event:'delivery.unclaimed',eventId:p.event_id,age_ms:age});}}};
+}
+
 const text=obj=>({type:'text',text:JSON.stringify(obj)});
 const result=obj=>({content:[text(obj)]});
 
-export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledgerRunner(),inlineLimit=INLINE_ORIGINAL_LIMIT,audit=()=>{},links=null,origin=null}){
+export function registerDeliveryTools(server,{z,inbox,token,readCache,run=ledgerRunner(),inlineLimit=INLINE_ORIGINAL_LIMIT,audit=()=>{},links=null,origin=null,ledgerPath=null}){
  const ids={file_id:z.string().uuid(),event_id:z.string().regex(/^evt_[A-Za-z0-9_-]{8,100}$/)};
  const ro={readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false};
  const sourceFor=(fileId,eventId)=>{const image=inbox.read(token,fileId);if(image.source?.event_id!==eventId)throw Error('Event identity mismatch');return image;};
 
+ if(ledgerPath)server.registerTool('pending_deliveries',{description:'Read-only work list. Call at the start of every run (a merged trigger may not list its events) and again after finishing each item; keep going until pending is empty. kind=image: run claim_image_delivery for that file_id/event_id. kind=answer: run reserve_answer. held items need reconciliation: report them, never process them automatically. Never returns images, links or question text.',inputSchema:z.object({}).strict(),annotations:{readOnlyHint:true,openWorldHint:false}},()=>{inbox.auth(token,'read');const r=pendingDeliveries(inbox,ledgerPath);return result({type:'send-to-dot.pending',version:1,...r,server_time:new Date().toISOString()});});
+
  server.registerTool('claim_image_delivery',{description:'One-call claim for the original dot: checks the canonical delivery ledger (dedup/hold), and only when this event may be delivered returns the EXACT original image plus a claim_id. Next, in the same turn and without analysing the image: save these exact bytes to the private Library once, then send that Library file once in the original conversation, then call record_image_sent. decision skip/hold/answer_pending/too_large returns no image; never retry a hold.',inputSchema:z.object(ids).strict(),annotations:ro},async p=>{
-  const t0=Date.now();const image=sourceFor(p.file_id,p.event_id);
+  const t0=Date.now();audit({event:'delivery.claim.start',eventId:p.event_id});const image=sourceFor(p.file_id,p.event_id);
   if(!links&&image.bytes.length>inlineLimit){audit({event:'delivery.claim',outcome:'too_large'});return result({type:'send-to-dot.claim',version:1,decision:'too_large_for_inline',original_bytes:image.bytes.length,inline_limit:inlineLimit,claimed:false,next:'use_existing_controlled_flow'});}
   const start=await run('start',p.file_id,p.event_id,{});
   if(start.decision!=='read_source'){audit({event:'delivery.claim',outcome:start.decision,eventId:p.event_id});return result({type:'send-to-dot.claim',version:1,decision:start.decision,reason:start.reason??null,answer_state:start.answer_state??null,library_file_id:start.library_file_id??null,claimed:false});}

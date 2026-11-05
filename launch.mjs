@@ -27,6 +27,6 @@ const server=http.createServer((req,res)=>{observeUpload(req,res,config.audit);i
  if(path==='/api/upload'||path==='/mcp'){try{app.inbox.auth(req.headers.authorization?.replace(/^Bearer /,''),path==='/mcp'?'read':'upload');}catch{res.writeHead(401,{'WWW-Authenticate':'Bearer resource_metadata=\"'+config.origin+'/.well-known/oauth-protected-resource\"'}).end();return;}}
  if(path==='/api/upload'&&req.headers.origin!==config.origin){res.writeHead(403).end();return;}serve(req,res);});
 server.listen(43187,'127.0.0.1',()=>console.log('Private inbox listening on approved loopback; no content logged'));
-const delivery=setInterval(()=>app.deliver().catch(()=>{}),5000);const cleanup=setInterval(()=>{app.inbox.sweep();app.cleanupReadCache();},30000);
-function stop(){clearInterval(delivery);clearInterval(cleanup);server.closeAllConnections();server.close(()=>{app.inbox.close();process.exit(0);});}
+const delivery=setInterval(()=>app.deliver().catch(()=>{}),5000);const cleanup=setInterval(()=>{app.inbox.sweep();app.cleanupReadCache();},30000);const watch=setInterval(()=>{try{app.watchUnclaimed?.();}catch{}},15000);
+function stop(){clearInterval(delivery);clearInterval(cleanup);clearInterval(watch);server.closeAllConnections();server.close(()=>{app.inbox.close();process.exit(0);});}
 process.on('SIGINT',stop);process.on('SIGTERM',stop);
