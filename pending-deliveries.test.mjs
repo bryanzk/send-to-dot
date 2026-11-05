@@ -60,3 +60,12 @@ test('record_image_sent and claim results carry the next pending item',async()=>
   assert.equal(done.next_pending,null);assert.equal(done.pending_count,0);
  }finally{box.close();}
 });
+test('uncertain records stay held after the inbox copy expires; finished or legacy ones do not',async()=>{
+ const {box,ledgerPath}=await setup();
+ writeFileSync(ledgerPath,JSON.stringify({items:[
+  {source_file_id:'gone-1',event_id:'evt_gone0001',delivery_mode:'image_then_answer',state:'split_active',image_state:'creating_uncertain',answer_state:'not_requested'},
+  {source_file_id:'gone-2',event_id:'evt_gone0002',delivery_mode:'image_then_answer',state:'send_accepted',image_state:'accepted',answer_state:'not_requested'},
+  {source_file_id:'gone-3',event_id:'evt_gone0003',delivery_mode:'image_then_answer',state:'split_active',image_state:'claimed'}]}));
+ const r=pendingDeliveries(box,ledgerPath);
+ assert.deepEqual(r.held,[{file_id:'gone-1',event_id:'evt_gone0001',source_expired:true,image_state:'creating_uncertain',answer_state:'not_requested'}]);assert.deepEqual(r.pending,[]);
+});

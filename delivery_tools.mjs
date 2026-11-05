@@ -43,6 +43,9 @@ export function pendingDeliveries(inbox,ledgerPath,{now=Date.now(),owner='owner'
   if(x.image_state==='accepted'&&['pending','paused_unverified'].includes(x.answer_state)){pending.push({...base,kind:'answer'});continue;}
   if(x.image_state!=='accepted'||x.answer_state!=='not_requested')held.push({...base,image_state:x.image_state??x.state??null,answer_state:x.answer_state??null});
  }
+ // Uncertain records stay visible after the inbox copy expires: they still need a checked reconciliation.
+ const listed=new Set(rows.map(r=>r.id));
+ for(const x of items)if(!listed.has(x.source_file_id)&&x.delivery_mode==='image_then_answer'&&x.state!=='send_accepted'&&(/_uncertain$/.test(String(x.image_state))||/_uncertain$/.test(String(x.answer_state))))held.push({file_id:x.source_file_id,event_id:x.event_id??null,source_expired:true,image_state:x.image_state??null,answer_state:x.answer_state??null});
  return {ok:true,pending,held};
 }
 // Alert-only watchdog: log once per event that nobody claimed within afterMs.
