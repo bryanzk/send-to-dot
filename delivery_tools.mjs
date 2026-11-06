@@ -39,8 +39,8 @@ export function pendingDeliveries(inbox,ledgerPath,{now=Date.now(),owner='owner'
  return {ok:true,pending,held};
 }
 // Alert-only watchdog: log once per event that nobody claimed within afterMs.
-export function unclaimedWatcher(inbox,ledgerPath,audit,{afterMs=60000,clock=Date.now}={}){
- const seen=new Set();
+// `seen` can be persistent (a restarted Durable Object must not repeat the same alert).
+export function unclaimedWatcher(inbox,ledgerPath,audit,{afterMs=60000,clock=Date.now,seen=new Set()}={}){
  return ()=>{const now=clock();const r=pendingDeliveries(inbox,ledgerPath,{now});if(!r.ok)return;
   for(const p of r.pending){if(p.kind!=='image'||seen.has(p.event_id))continue;const age=now-Date.parse(p.uploaded_at);if(age>=afterMs){seen.add(p.event_id);audit({event:'delivery.unclaimed',eventId:p.event_id,age_ms:age});}}};
 }

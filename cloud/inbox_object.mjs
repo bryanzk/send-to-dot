@@ -33,13 +33,15 @@ export function buildInbox({sql,tx,env,clock=Date.now,deps={}}){
   // The public origin comes from ORIGIN, or is bound once by the owner's first /setup (one-click
   // deployments do not know their workers.dev address in advance). Until then only /setup answers.
   let app=null;
+  db.exec('CREATE TABLE IF NOT EXISTS unclaimed_alerts(event TEXT PRIMARY KEY)');
+  const unclaimedSeen={has:e=>!!db.prepare('SELECT 1 x FROM unclaimed_alerts WHERE event=?').get(e),add:e=>{db.prepare('INSERT OR IGNORE INTO unclaimed_alerts VALUES(?)').run(e);db.prepare('DELETE FROM unclaimed_alerts WHERE event NOT IN (SELECT event FROM images)').run();}};
   // Only a real https origin counts as configured; an empty or placeholder value means "bind on /setup".
   const origin=()=>(/^https:\/\/[^/]+$/.test(env.ORIGIN??'')?env.ORIGIN:null)||setting('origin');
   function ensureApp(){if(app)return app;const o=origin();if(!o)return null;
     app=createApp({origin:o,redirects:JSON.parse(env.REDIRECTS??'[]'),approvalSecret:env.APPROVAL_SECRET,
       dotNativeDelivery:true,originalDownloadLinks:true,dispatchOnUpload:true,audit,clock},
       {inbox,callbackVerifier:deps.callbackVerifier??verifyCallback,dispatcher:deps.dispatcher??postSigned,webFile,
-       ledgerRun:ledger.run,ledgerItems:()=>ledger.items(),originalLinks:new SqlOriginalLinks(inbox,{clock})});
+       ledgerRun:ledger.run,ledgerItems:()=>ledger.items(),originalLinks:new SqlOriginalLinks(inbox,{clock}),unclaimedSeen});
     return app;}
   const ownerOK=v=>!!env.APPROVAL_SECRET&&same(v??'',env.APPROVAL_SECRET);
   let tries=0,minute=0;

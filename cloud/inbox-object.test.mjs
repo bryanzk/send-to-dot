@@ -82,3 +82,11 @@ test('one-click deployment: no ORIGIN or STORAGE_KEY; owner /setup binds the ori
   assert.equal(other.inbox.key.equals(box.inbox.key),true);
   const s=await (await other.handle(new Request(o+'/admin/status',{headers:{Authorization:'Bearer owner-choice'}}))).json();assert.equal(s.upload_codes,1);assert.equal(s.images,1);
 });
+test('unclaimed alert is logged once per event even after the Durable Object restarts',async()=>{
+  const st=fakeStorage();let now=Date.now();const clock=()=>now;
+  const mk=()=>buildInbox({sql:st.sql,tx:st.tx,env,clock});const a=mk();
+  a.inbox.grant('phone-code-fixture','owner','upload');
+  const up=await a.app.fetch(new Request(origin+'/api/upload',{method:'POST',headers:{Authorization:'Bearer phone-code-fixture',Origin:origin,'Content-Type':'image/png','X-Share-ID':'unclaimedfixture1'},body:makePng(12)}));assert.equal(up.status,201);
+  now+=120000;await a.tick();const b=mk();await b.tick();now+=15000;await b.tick();
+  const n=st.db.prepare("SELECT count(*) n FROM audit_log WHERE entry LIKE '%delivery.unclaimed%'").get().n;assert.equal(n,1);
+});

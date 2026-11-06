@@ -5,6 +5,7 @@
 - One-sentence Cloudflare setup with your own dot, no Mac: README “No Mac” prompt and the “Cloudflare path” in INSTALL_FOR_DOT.md. Deployment uses Cloudflare's “Deploy to Cloudflare” page (root `wrangler.toml`, Worker `send-to-dot-cloud`, free plan) and asks only for your owner code.
 - The Worker needs no address or encryption-key secret: the key is generated inside the Durable Object, the owner's first `/setup` binds the address, and `/setup` issues phone codes (shown once). Admin endpoints accept the owner code.
 - Setup form accepts same-origin posts when the browser sends `Origin: null`.
+- The unclaimed-event alert is logged once per event even after the Durable Object restarts (it was repeated every 15 s).
 - Verified on the author's account: deployed from the Deploy page into a new private repository, `/setup` bound the address and issued a phone code, a phone upload was received, and ChatGPT connected over OAuth and called `inbox_status` (read and subscribe authorized). Another user's independent deployment and screen-recorded tap-to-visible timing remain not yet verified.
 
 ## 0.9.0 (preview)
