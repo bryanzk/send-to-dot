@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.5 (preview)
+
+What this release means for you:
+
+- **No computer has to stay on.** The whole inbox runs on your own free Cloudflare account. Your Mac can sleep, travel or be switched off; sharing from your phone keeps working.
+- **Set up by talking to your dot.** Paste one message (README, “No Mac”) into your dot conversation. Your dot finds this release and walks you through the few steps only you can do: sign in on Cloudflare's Deploy page, choose your owner code, open `/setup` for the phone code, add the ChatGPT app. It then creates its own task. No terminal, no server to maintain.
+- **Your original photo, once.** The exact file arrives in your existing dot conversation as an attachment, not a compressed preview, and is never sent twice. If a send is uncertain, it is held and checked instead of retried.
+- **Private by default.** Photos are encrypted and deleted from the inbox after 1 hour; the phone code can only upload; ChatGPT can read only after you approve with your owner code.
+- **About 40 seconds** from tapping Send to seeing the photo in one measured case (server timings; not yet confirmed by screen recording). Most of that is dot waking up; several photos in a row add about 20 s each.
+
+No code changes since 0.9.1; this preview marks the server-only setup as the recommended way to use Send to dot. Not yet verified: another person's independent deployment, screen-recorded timing, and a 30-day grant renewal. The Mac install path is still available and unchanged.
+
 ## 0.9.1 (preview)
 
 - One-sentence Cloudflare setup with your own dot, no Mac: README “No Mac” prompt and the “Cloudflare path” in INSTALL_FOR_DOT.md. Deployment uses Cloudflare's “Deploy to Cloudflare” page (root `wrangler.toml`, Worker `send-to-dot-cloud`, free plan) and asks only for your owner code.
